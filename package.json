@@ -1,0 +1,28 @@
+{
+  "name": "innovecs",
+  "version": "1.0.0",
+  "description": "Innovecs | Test assignment",
+  "main": "src/index.ts",
+  "author": "Ustym Ukhman",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UstymUkhman/innovecs.git"
+  },
+  "scripts": { 
+    "build": "webpack", 
+    "dev": "webpack-dev-server" 
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^6.4.0",
+    "ts-loader": "^8.0.11",
+    "typescript": "^4.1.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "phaser": "^3.24.1"
+  }
+}

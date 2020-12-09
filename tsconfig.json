@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "noImplicitAny": true,
+
+    "module": "esnext",
+    "sourceMap": true,
+    "jsx": "preserve",
+    "checkJs": true,
+    "allowJs": true,
+    "target": "es5",
+    "baseUrl": ".",
+    "strict": true,
+
+    "typeRoots": ["node_modules/@types"],
+    "types": [],
+
+    "lib": [
+      "esnext",
+      "dom"
+    ]
+  },
+
+  "include": [
+    "src/**/*",
+    "src/**/*.ts"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "public",
+    "build",
+    "dist"
+  ]
+}

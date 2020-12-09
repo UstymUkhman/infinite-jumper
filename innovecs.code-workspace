@@ -1,0 +1,12 @@
+{
+	"settings": {
+    "js-import.filesToScan": "**/*.{ts,js}",
+    "git.ignoreLimitWarning": true,
+    "js-import.semicolon": true
+	},
+
+	"folders": [{
+    "name": "innovecs",
+		"path": "."
+	}]
+}
