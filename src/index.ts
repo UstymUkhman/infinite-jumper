@@ -3,7 +3,7 @@ import Main from './scenes/Main';
 
 export const game = new Game({
   title: 'Innovecs | Test assignment',
-  backgroundColor: '#000000',
+  backgroundColor: '#169AC5',
 
   parent: 'container',
   type: Phaser.AUTO,
