@@ -1,16 +1,20 @@
-import { Scene, Physics, Tweens, Types } from 'phaser';
+import { Scene, Physics, GameObjects, Tweens } from 'phaser';
+import { randomInt, randomEasing } from '../utils';
+import CONFIG from './config.json';
 
 export default class Main extends Scene {
+  private platformTargetPosition = CONFIG.platform.width / 2;
+  private leftPlatform = Math.random() < 0.5;
+
   private platforms!: Physics.Arcade.StaticGroup;
   private platformAnimation!: Tweens.Tween;
   private player!: Physics.Arcade.Sprite;
 
-  private leftPlatform = Math.random() < 0.5;
-  private leftPlatformPosition = [-96, -32];
-  private rightPlatformPosition = [32, 96];
-
+  private autoplaying = false;
   private gameOver = false;
   private jumping = false;
+
+  private halfWidth = 0;
   private score = 0;
 
 	public constructor () {
@@ -22,14 +26,20 @@ export default class Main extends Scene {
     this.load.image('brick', 'assets/brick.png');
 
     this.load.spritesheet('mario', 'assets/mario.png', {
-      frameHeight: 108,
-      frameWidth: 70
+      frameHeight: CONFIG.player.height,
+      frameWidth: CONFIG.player.width
     });
 	}
 
 	private create (): void {
-    const ground = this.createEnvironment();
+    this.createSky();
+    this.halfWidth = this.scale.width / 2;
+
+    const ground = this.createGround();
     this.player = this.createPlayer();
+
+    this.addInputEvents();
+    this.followPlayer();
 
     this.platforms = this.physics.add.staticGroup();
     this.createPlatform();
@@ -38,120 +48,164 @@ export default class Main extends Scene {
     this.physics.add.collider(this.player, this.platforms, this.onPlatformLanding, undefined, this);
   }
 
-  private onPlatformLanding (): void {
-    const platforms = this.platforms.children.size;
+  private followPlayer (): void {
+    const playerHalf = CONFIG.player.height / 2;
+    const groundHeight = CONFIG.platform.height * 2;
 
-    const hit = this.physics.world.overlap(this.player, [
-      this.platforms.children.entries[platforms - 2],
-      this.platforms.children.entries[platforms - 1]
-    ]);
-
-    // console.log(hit);
-
-    if (hit || !this.jumping) return;
-    this.platformAnimation.stop();
-    this.jumping = false;
-
-    this.leftPlatform = Math.random() < 0.5;
-    this.player.flipX = this.leftPlatform;
-
-    if (++this.score === 4) {
-      this.cameras.main.startFollow(this.player);
-    }
-
-    this.createPlatform();
+    this.cameras.main.startFollow(
+      this.player, false, 1, 0.1, 0,
+      this.scale.height / 2 - (groundHeight + playerHalf)
+    );
   }
 
-  private createEnvironment (): Physics.Arcade.StaticGroup {
-    const skyRatio = 800 / 600;
-    const { width, height } = this.scale;
-    const sky = this.add.image(width / 2, height / 2, 'sky');
+  private onPlatformLanding (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
+    const lastPlatform = this.platforms.children.size - 1;
 
-    const skyHeight = height / sky.height;
+    const hit = this.physics.world.overlap(this.player,
+      this.platforms.children.entries[lastPlatform]
+    );
+
+    if (hit) {
+      this.player.angle = this.leftPlatform ? 90 : -90;
+
+
+
+      const velocity = this.leftPlatform ? 250 : -250;
+      this.cameras.main.stopFollow();
+
+      this.player.flipX = this.leftPlatform;
+
+      this.player.setCollideWorldBounds(true);
+      this.player.setVelocityX(velocity);
+      this.player.setOffset(0, -30);
+      console.log('Game Over!');
+      return;
+    }
+
+    if (!this.jumping) return;
+    this.jumping = false;
+
+    if (platform.getData('index') === lastPlatform) {
+      this.leftPlatform = Math.random() < 0.5;
+      this.player.flipX = this.leftPlatform;
+      this.platformAnimation.stop();
+
+      this.score++;
+      this.createPlatform();
+    }
+  }
+
+  private createSky (): void {
+    const sky = this.add.image(this.halfWidth, this.scale.height / 2, 'sky');
+    const skyRatio = CONFIG.background.width / CONFIG.background.height;
+
+    const skyHeight = this.scale.height / sky.height;
     const skyWidth = skyHeight * skyRatio;
 
     sky.setScale(skyWidth, skyHeight);
+  }
 
-    return this.physics.add.staticGroup({
-      setXY: { x: 32, y: height - 32, stepX: 64 },
-      repeat: Math.floor(width / 64),
-      key: 'brick'
-    });
+  private createGround (): Physics.Arcade.StaticGroup {
+    const ground = this.physics.add.staticGroup();
+    const { width, height } = CONFIG.platform;
+    const halfHeight = height / 2;
+
+    const VERTICAL_PLATFORMS = 2;
+    const HORIZONTAL_PLATFORMS = Math.ceil(this.scale.width / width);
+
+    for (let row = 0; row < VERTICAL_PLATFORMS; row++) {
+      for (let col = 0; col < HORIZONTAL_PLATFORMS; col++) {
+        const x = col * width + height;
+        const y = this.scale.height - (row * height + halfHeight);
+
+        ground.add(this.physics.add.staticImage(x, y, 'brick'), true);
+      }
+    }
+
+    return ground;
   }
 
   private createPlayer (): Physics.Arcade.Sprite {
-    const player = this.physics.add.sprite(180, 522, 'mario');
+    const offsetBottom = CONFIG.platform.width + CONFIG.player.height / 2;
 
     this.anims.create({
-      frames: this.anims.generateFrameNumbers('mario', { start: 0, end: 6 }),
+      frames: this.anims.generateFrameNumbers('mario', {
+        start: 0, end: CONFIG.player.frames
+      }),
+
       frameRate: 15,
       key: 'jump'
     });
 
+    return this.physics.add.sprite(
+      this.halfWidth,
+      this.scale.height - offsetBottom,
+      'mario'
+    );
+  }
+
+  private addInputEvents (): void {
     this.input.on('pointerup', () => {
-      if (player.body.touching.down) {
-        player.anims.play('jump');
-        player.setVelocityY(-450);
+      if (this.player.body.touching.down) {
+        this.player.setVelocityY(-500.0);
+        this.player.anims.play('jump');
         this.jumping = true;
       }
     });
-
-    return player;
   }
 
   private createPlatform (): void {
     const { width, height } = this.scale;
     const x = this.leftPlatform ? 0 : width;
-    const y = height + (-96 - this.score * 64);
+
+    const platformHeight = CONFIG.platform.height;
+    const minDuration = 1250; // this.autoplaying ? 1250 : 500;
+    const y = height - platformHeight * 2.5 - this.score * platformHeight;
 
     const platformPosition = this.leftPlatform
-      ? this.leftPlatformPosition : this.rightPlatformPosition;
+      ? -this.platformTargetPosition : this.platformTargetPosition;
 
-    // this.platforms.create(x + platformPosition[0], y, 'brick');
-    // this.platforms.create(x + platformPosition[1], y, 'brick');
-
-    console.log(this.score);
-
-    const platform = [
-      this.physics.add.staticImage(x + platformPosition[0], y, 'brick'),
-      this.physics.add.staticImage(x + platformPosition[1], y, 'brick')
-    ];
-
-    this.platforms.add(platform[0], true);
-    this.platforms.add(platform[1], true);
-
+    const platform = this.physics.add.staticImage(x + platformPosition, y, 'brick');
     const destination = `${this.leftPlatform ? '+' : '-'}= 244`;
 
+    platform.setData('index', this.platforms.children.size);
+    this.platforms.add(platform, true);
+
     this.platformAnimation = this.add.tween({
+      onUpdate: this.updatePlatformAnimation.bind(this),
+      duration: randomInt(minDuration, 2500),
+
       props: {x: { value: destination }},
-      targets: platform,
-      ease: 'Quartic.In', // https://sole.github.io/tween.js/examples/03_graphs.html
-      duration: 2500,
+      delay: randomInt(0, 1000),
 
-      onUpdate: (tween, brick) => brick.refreshBody() // ,
-
-      // onComplete: () => {
-      //   // if not dead
-      //   this.leftPlatform = Math.random() < 0.5;
-      //   this.player.flipX = this.leftPlatform;
-
-      //   if (++this.score === 4) {
-      //     this.cameras.main.startFollow(this.player);
-      //   }
-
-      //   this.createPlatform();
-      // }
+      ease: randomEasing(),
+      targets: platform
     });
   }
 
+  private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image): void {
+    platform.refreshBody();
+    if (!this.autoplaying) return;
+
+    const offset = this.halfWidth + (this.leftPlatform ? -250 : 250);
+
+    if (this.leftPlatform && platform.x >= offset) {
+      this.playerJump();
+    }
+
+    else if (platform.x <= offset) {
+      this.playerJump();
+    }
+  }
+
+  private playerJump (): void {
+    if (this.player.body.touching.down) {
+      this.player.setVelocityY(-500.0);
+      this.player.anims.play('jump');
+      this.jumping = true;
+    }
+  }
+
 	public update (time: number, delta: number): void {
-    // const platforms = this.platforms.children.size;
-
-    // const hit = this.physics.world.overlap(this.player, [
-    //   this.platforms.children.entries[platforms - 2],
-    //   this.platforms.children.entries[platforms - 1]
-    // ]);
-
-    // console.log(hit);
   }
 };
