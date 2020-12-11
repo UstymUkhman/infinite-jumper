@@ -1,5 +1,5 @@
 import { Game } from 'phaser';
-import Main from './scenes/Main';
+import Scene from '@Game/Scene';
 
 export const game = new Game({
   title: 'Innovecs | Test assignment',
@@ -7,7 +7,7 @@ export const game = new Game({
 
   parent: 'container',
   type: Phaser.AUTO,
-  scene: Main,
+  scene: Scene,
 
   physics: {
     default: 'arcade',

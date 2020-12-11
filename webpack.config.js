@@ -23,7 +23,11 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: ['.ts', '.tsx', '.js', '.json'],
+
+    alias: {
+      '@Game': path.resolve(__dirname, './src/game')
+    }
   },
 
   output: {

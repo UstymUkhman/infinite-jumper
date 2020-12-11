@@ -5,6 +5,10 @@
     "js-import.semicolon": true
 	},
 
+	"js-import.alias": {
+		"@Game": "./src/game"
+	},
+
 	"folders": [{
     "name": "innovecs",
 		"path": "."

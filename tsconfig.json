@@ -18,6 +18,11 @@
     "strict": true,
 
     "typeRoots": ["node_modules/@types"],
+    
+    "paths": {
+      "@Game/*": ["src/game/*"]
+    },
+
     "types": [],
 
     "lib": [
@@ -33,8 +38,6 @@
 
   "exclude": [
     "node_modules",
-    "public",
-    "build",
     "dist"
   ]
 }

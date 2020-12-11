@@ -1,0 +1,17 @@
+{
+  "player": {
+    "width": 70,
+    "height": 108,
+    "frames": 7
+  },
+
+  "platform": {
+    "width": 128,
+    "height": 64
+  },
+
+  "background": {
+    "width": 800,
+    "height": 600
+  }
+}
