@@ -12,7 +12,7 @@ export default class CameraManager {
 
   public zoomIn (amount: number): void {
     console.log(amount);
-    const zoom = Math.min(1 + amount * 0.01, 1.2);
+    const zoom = Math.min(1 + amount * 0.01, 1.25);
     this.camera.zoomTo(zoom, 500, 'Quad.easeOut');
   }
 

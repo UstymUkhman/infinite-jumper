@@ -27,20 +27,7 @@ html, body {
   top: 0;
 }
 
-body .game {
-  position: absolute;
-  margin: auto;
-
-  height: 640px;
-  width: 360px;
-
-  bottom: 0;
-  right: 0;
-  left: 0;
-  top: 0;
-}
-
-#container {
+#game {
   height: 100%;
   width: 100%;  
 }

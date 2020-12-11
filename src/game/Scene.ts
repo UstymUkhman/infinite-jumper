@@ -67,6 +67,8 @@ export default class extends Scene {
   }
 
   private onPlatformLanding (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
+    if (this.gameOver) return;
+
     const lastPlatform = this.platforms.children.size - 1;
 
     this.gameOver = this.physics.world.overlap(this.player,
@@ -75,10 +77,10 @@ export default class extends Scene {
 
     if (this.gameOver) {
       this.add.tween(this.player.die(this.leftPlatform));
-      return this.camera.zoomOut(this.score * 140);
+      this.camera.zoomOut(this.score * 140);
     }
 
-    if (this.player.jumping) {
+    else if (this.player.jumping) {
       this.player.jumping = false;
 
       if (platform.getData('index') === lastPlatform) {
@@ -94,10 +96,20 @@ export default class extends Scene {
 
   private createSky (): void {
     const sky = this.add.image(this.halfWidth, this.halfHeight, 'sky');
-    const skyRatio = CONFIG.background.width / CONFIG.background.height;
+    const { width, height } = CONFIG.background;
 
-    const skyHeight = this.scale.height / sky.height;
-    const skyWidth = skyHeight * skyRatio;
+    const skyRatio = width / height;
+    let skyWidth, skyHeight;
+
+    if (skyRatio < 1) {
+      skyHeight = this.scale.height / sky.height;
+      skyWidth = skyHeight * skyRatio;
+    }
+
+    else {
+      skyWidth = this.scale.width / sky.width;
+      skyHeight = skyWidth * skyRatio;
+    }
 
     sky.setScale(skyWidth, skyHeight);
   }
@@ -133,44 +145,40 @@ export default class extends Scene {
 
   private createPlatform (): void {
     const { width, height } = this.scale;
+    const [easing, jump] = randomEasing();
     const x = this.leftPlatform ? 0 : width;
 
     const platformHeight = CONFIG.platform.height;
+    const halfPlatformWidth = CONFIG.platform.width / 2;
     const y = height - platformHeight * 2.5 - this.score * platformHeight;
 
     const platformPosition = this.leftPlatform
       ? -this.platformTargetPosition : this.platformTargetPosition;
 
     const platform = this.physics.add.staticImage(x + platformPosition, y, 'brick');
-    const destination = `${this.leftPlatform ? '+' : '-'}= 244`;
+    const destination = `${this.leftPlatform ? '+' : '-'}= ${this.halfWidth + halfPlatformWidth}`;
 
     platform.setData('index', this.platforms.children.size);
     this.platforms.add(platform, true);
 
     this.platformAnimation = this.add.tween({
-      onUpdate: this.updatePlatformAnimation.bind(this),
+      onUpdate: (tween: Tweens.Tween, platform: Physics.Arcade.Image) =>
+        this.updatePlatformAnimation(tween, platform, jump),
 
-      duration: randomInt(1250, 2500),
       delay: randomInt(0, 1000),
       props: { x: destination },
 
-      ease: randomEasing(),
-      targets: platform
+      targets: platform,
+      duration: 1500,
+      ease: easing
     });
   }
 
-  private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image): void {
+  private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image, jump: number): void {
     platform.refreshBody();
     if (!this.autoplaying) return;
 
-    const offset = this.halfWidth + (this.leftPlatform ? -250 : 250);
-
-    if (this.leftPlatform && platform.x >= offset) {
-      this.player.jump();
-    }
-
-    else if (platform.x <= offset) {
-      this.player.jump();
-    }
+    const progress = tween.data[0].progress || 0;
+    progress >= jump && this.player.jump();
   }
 };

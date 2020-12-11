@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
+    "downlevelIteration": true,
     "resolveJsonModule": true,
     "strictNullChecks": true,
     "esModuleInterop": true,
