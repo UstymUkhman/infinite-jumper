@@ -2,7 +2,7 @@ import { Math as MathUtils } from 'phaser';
 
 type Easing = (v: number, overshoot?: number) => number;
 
-const EASINGS: Map<Easing, number> = new Map([
+const EASINGS = [...new Map([
   [MathUtils.Easing.Linear,          0.5],
 
   [MathUtils.Easing.Quadratic.In,    0.5],
@@ -36,13 +36,13 @@ const EASINGS: Map<Easing, number> = new Map([
   [MathUtils.Easing.Back.In,         0.75],
   [MathUtils.Easing.Back.Out,        0.1],
   [MathUtils.Easing.Back.InOut,      0.4]
-]);
-
-export const randomEasing = (): [Easing, number] =>
-  [...(EASINGS as unknown as [Easing, number][])][randomInt(0, EASINGS.size - 1)];
+]) as unknown as [Easing, number][]];
 
 export const clamp = (value: number, min = 0, max = 1): number =>
   Math.max(min, Math.min(value, max));
 
 export const randomInt = (min: number, max: number): number =>
   Math.floor(Math.random() * (max - min + 1)) + min;
+
+export const randomEasing = (): [Easing, number] =>
+  EASINGS[randomInt(0, EASINGS.length - 1)];

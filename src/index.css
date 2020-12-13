@@ -29,5 +29,22 @@ html, body {
 
 #game {
   height: 100%;
-  width: 100%;  
+  width: 100%;
+}
+
+#score {
+  font-family: Courier, sans-serif;
+  text-align: center;
+  font-size: 7.5vw;
+  color: #ffffff;
+
+  position: fixed;
+  display: none;
+
+  width: 100%;
+  top: 10vw;
+}
+
+#score.visible {
+  display: block;
 }

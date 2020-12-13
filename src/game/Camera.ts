@@ -1,19 +1,21 @@
 import { clamp } from '@Game/utils';
-
 import type { Cameras } from 'phaser';
 import type Player from '@Game/Player';
 
 export default class CameraManager {
+  private initialPosition = 0;
+
   public constructor (private camera: Cameras.Scene2D.Camera) {}
 
-  public follow (target: Player, y = 0): void {
+  public follow (target: Player, y = this.initialPosition): void {
     this.camera.startFollow(target, false, 1, 0.1, 0, y);
+    this.initialPosition = y;
   }
 
   public zoomIn (amount: number): void {
-    console.log(amount);
     const zoom = Math.min(1 + amount * 0.01, 1.25);
     this.camera.zoomTo(zoom, 500, 'Quad.easeOut');
+    this.camera.setFollowOffset(0, this.camera.followOffset.y / zoom);
   }
 
   public zoomOut (duration: number): void {

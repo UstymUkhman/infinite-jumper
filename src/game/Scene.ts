@@ -4,17 +4,21 @@ import { randomInt, randomEasing } from '@Game/utils';
 import CameraManager from '@Game/Camera';
 import CONFIG from '@Game/config.json';
 import Player from '@Game/Player';
+import UI from '@Game/UI';
 
 export default class extends Scene {
   private platformTargetPosition = CONFIG.platform.width / 2;
-  private leftPlatform = Math.random() < 0.5;
-
   private platforms!: Physics.Arcade.StaticGroup;
+  private leftPlatform = Math.random() < 0.5;
   private platformAnimation!: Tweens.Tween;
+  private playerRotation!: Tweens.Tween;
+
   private camera!: CameraManager;
   private player!: Player;
+  private ui!: UI;
 
   private autoplaying = false;
+  private gamePaused = true;
   private gameOver = false;
 
   private halfHeight = 0;
@@ -23,11 +27,16 @@ export default class extends Scene {
 
 	public constructor () {
     super({ key: 'Scene' });
+
+    document.addEventListener('game:restart',
+      this.restart.bind(this), false
+    );
 	}
 
 	private preload (): void {
 		this.load.image('sky', 'assets/sky.png');
     this.load.image('brick', 'assets/brick.png');
+    this.load.image('button', 'assets/button.jpg');
 
     this.load.spritesheet('mario', 'assets/mario.png', {
       frameHeight: CONFIG.player.height,
@@ -39,20 +48,39 @@ export default class extends Scene {
     this.halfHeight = this.scale.height / 2;
     this.halfWidth = this.scale.width / 2;
 
+    this.createUI();
     this.createSky();
-
-    const ground = this.createGround();
-    this.player = this.createPlayer();
+    this.createPlayer();
 
     this.createCamera();
-    this.addInputEvents();
+    this.createInputEvents();
 
-    this.platforms = this.physics.add.staticGroup();
     this.player.flipX = this.leftPlatform;
-    this.createPlatform();
+    // this.scale.on('resize', this.resize, this);
+    this.platforms = this.physics.add.staticGroup();
 
-    this.physics.add.collider(this.player, ground);
-    this.physics.add.collider(this.player, this.platforms, this.onPlatformLanding, undefined, this);
+    this.physics.add.collider(this.player, this.createGround());
+    this.physics.add.collider(this.player, this.platforms, this.onPlatformCollision, undefined, this);
+  }
+
+  private createUI (): void {
+    this.ui = new UI(this);
+  }
+
+  private createSky (): void {
+    const sky = this.add.image(this.halfWidth, this.halfHeight, 'sky');
+    const { width, height } = CONFIG.background;
+    const skyRatio = width / height;
+
+    const skyHeight = this.scale.height / sky.height;
+    const skyWidth = skyHeight * skyRatio;
+
+    sky.setScale(skyWidth, skyHeight);
+  }
+
+  private createPlayer (): void {
+    const offsetBottom = CONFIG.platform.width + CONFIG.player.height / 2;
+    this.player = new Player(this, this.halfWidth, this.scale.height - offsetBottom, 'mario');
   }
 
   private createCamera (): void {
@@ -60,72 +88,39 @@ export default class extends Scene {
     const groundHeight = CONFIG.platform.height * 2;
 
     this.camera = new CameraManager(this.cameras.main);
-
-    this.camera.follow(this.player,
-      this.halfHeight - groundHeight - playerHalf
-    );
+    this.camera.follow(this.player, this.halfHeight - groundHeight - playerHalf);
   }
 
-  private onPlatformLanding (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
-    if (this.gameOver) return;
+  private createInputEvents (): void {
+    this.input.on('pointerdown', () => {
+      if (this.gameOver) return;
 
-    const lastPlatform = this.platforms.children.size - 1;
-
-    this.gameOver = this.physics.world.overlap(this.player,
-      this.platforms.children.entries[lastPlatform]
-    );
-
-    if (this.gameOver) {
-      this.add.tween(this.player.die(this.leftPlatform));
-      this.camera.zoomOut(this.score * 140);
-    }
-
-    else if (this.player.jumping) {
-      this.player.jumping = false;
-
-      if (platform.getData('index') === lastPlatform) {
-        this.leftPlatform = Math.random() < 0.5;
-        this.player.flipX = this.leftPlatform;
-
-        this.camera.zoomIn(++this.score);
-        this.platformAnimation.stop();
+      if (this.gamePaused) {
+        this.gamePaused = false;
+        this.ui.hideStartText();
         this.createPlatform();
       }
-    }
-  }
 
-  private createSky (): void {
-    const sky = this.add.image(this.halfWidth, this.halfHeight, 'sky');
-    const { width, height } = CONFIG.background;
-
-    const skyRatio = width / height;
-    let skyWidth, skyHeight;
-
-    if (skyRatio < 1) {
-      skyHeight = this.scale.height / sky.height;
-      skyWidth = skyHeight * skyRatio;
-    }
-
-    else {
-      skyWidth = this.scale.width / sky.width;
-      skyHeight = skyWidth * skyRatio;
-    }
-
-    sky.setScale(skyWidth, skyHeight);
+      else {
+        this.player.jump();
+      }
+    });
   }
 
   private createGround (): Physics.Arcade.StaticGroup {
-    const ground = this.physics.add.staticGroup();
-    const { width, height } = CONFIG.platform;
-    const halfHeight = height / 2;
+    const { width: platformWidth, height: platformHeight } = CONFIG.platform;
+    const { width: sceneWidth, height: sceneHeight } = this.scale;
 
+    const halfPlatformHeight = platformHeight / 2;
+    const ground = this.physics.add.staticGroup();
+
+    const HORIZONTAL_PLATFORMS = Math.ceil(sceneWidth / platformWidth);
     const VERTICAL_PLATFORMS = 2;
-    const HORIZONTAL_PLATFORMS = Math.ceil(this.scale.width / width);
 
     for (let row = 0; row < VERTICAL_PLATFORMS; row++) {
       for (let col = 0; col < HORIZONTAL_PLATFORMS; col++) {
-        const x = col * width + height;
-        const y = this.scale.height - (row * height + halfHeight);
+        const x = col * platformWidth + platformHeight;
+        const y = sceneHeight - (row * platformHeight + halfPlatformHeight);
 
         ground.add(this.physics.add.staticImage(x, y, 'brick'), true);
       }
@@ -134,18 +129,9 @@ export default class extends Scene {
     return ground;
   }
 
-  private createPlayer (): Player {
-    const offsetBottom = CONFIG.platform.width + CONFIG.player.height / 2;
-    return new Player(this, this.halfWidth, this.scale.height - offsetBottom, 'mario');
-  }
-
-  private addInputEvents (): void {
-    this.input.on('pointerup', this.player.jump.bind(this.player));
-  }
-
   private createPlatform (): void {
     const { width, height } = this.scale;
-    const [easing, jump] = randomEasing();
+    const [easing, timing] = randomEasing();
     const x = this.leftPlatform ? 0 : width;
 
     const platformHeight = CONFIG.platform.height;
@@ -163,7 +149,7 @@ export default class extends Scene {
 
     this.platformAnimation = this.add.tween({
       onUpdate: (tween: Tweens.Tween, platform: Physics.Arcade.Image) =>
-        this.updatePlatformAnimation(tween, platform, jump),
+        this.updatePlatformAnimation(tween, platform, timing),
 
       delay: randomInt(0, 1000),
       props: { x: destination },
@@ -174,11 +160,75 @@ export default class extends Scene {
     });
   }
 
-  private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image, jump: number): void {
-    platform.refreshBody();
+  private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
+    if (this.gameOver) return;
+
+    const lastPlatform = this.platforms.children.size - 1;
+
+    this.gameOver = this.physics.world.overlap(this.player,
+      this.platforms.children.entries[lastPlatform]
+    );
+
+    if (this.gameOver) this.onGameOver();
+
+    else if (this.player.jumping) {
+      this.player.jumping = false;
+
+      if (platform.getData('index') === lastPlatform) {
+        this.onPlatformLanding();
+      }
+    }
+  }
+
+  private onGameOver (): void {
+    this.camera.zoomOut(this.score * 140);
+
+    this.playerRotation = this.add.tween(
+      this.player.die(this.leftPlatform)
+    );
+
+    this.ui.toggleGameOver(true);
+    this.gamePaused = true;
+  }
+
+  private onPlatformLanding (): void {
+    const event = new CustomEvent('score:update', {
+      detail: { score: ++this.score }
+    });
+
+    this.leftPlatform = Math.random() < 0.5;
+    this.player.flipX = this.leftPlatform;
+
+    this.camera.zoomIn(this.score);
+    document.dispatchEvent(event);
+
+    this.platformAnimation.stop();
+    this.createPlatform();
+  }
+
+  private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image, timing: number): void {
+    platform.body && platform.refreshBody();
     if (!this.autoplaying) return;
 
     const progress = tween.data[0].progress || 0;
-    progress >= jump && this.player.jump();
+    progress >= timing && this.player.jump();
+  }
+
+  // private resize (): void {
+  //   console.log(arguments);
+  //   console.log(this.scale);
+  // }
+
+  private restart (): void {
+    this.score = 0;
+    this.player.reset();
+
+    this.platforms.clear(true, true);
+    this.camera.follow(this.player);
+    this.playerRotation.stop();
+    this.createPlatform();
+
+    this.gamePaused = false;
+    this.gameOver = false;
   }
 };

@@ -1,16 +1,22 @@
 import { player as PLAYER } from '@Game/config.json';
+type Position = { x: number, y: number };
+
 import type { Scene } from 'phaser';
 import { Physics } from 'phaser';
 
 export default class Player extends Physics.Arcade.Sprite {
+  private initialPosition: Position;
+  private offsetTimeout?: number;
+
   private isJumping = false;
-  private alive = true;
+  private isAlive = true;
 
   public constructor (scene: Scene, x: number, y: number, texture: string) {
     super(scene, x, y, texture);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
+    this.initialPosition = { x, y };
 
     scene.anims.create({
       frames: scene.anims.generateFrameNumbers('mario', {
@@ -23,7 +29,7 @@ export default class Player extends Physics.Arcade.Sprite {
   }
 
   public jump (): void {
-    if (this.alive && this.body.touching.down) {
+    if (this.isAlive && this.body.touching.down) {
       this.setVelocityY(-500.0);
       this.anims.play('jump');
       this.isJumping = true;
@@ -33,7 +39,7 @@ export default class Player extends Physics.Arcade.Sprite {
   public die (fromLeft: boolean) {
     const direction = fromLeft ? 1 : -1;
 
-    setTimeout(() =>
+    this.offsetTimeout = setTimeout(() =>
       this.setOffset(0, PLAYER.height / -3.6)
     , 250);
 
@@ -41,7 +47,7 @@ export default class Player extends Physics.Arcade.Sprite {
     this.setCollideWorldBounds(true);
 
     this.flipX = fromLeft;
-    this.alive = false;
+    this.isAlive = false;
 
     return {
       props: { angle: 90 * direction },
@@ -49,6 +55,21 @@ export default class Player extends Physics.Arcade.Sprite {
       duration: 500,
       targets: this
     };
+  }
+
+  public reset (): void {
+    const { x, y } = this.initialPosition;
+    this.setCollideWorldBounds(false);
+    clearTimeout(this.offsetTimeout);
+
+    this.isJumping = false;
+    this.isAlive = true;
+
+    this.setPosition(x, y);
+    this.setOffset(0, 0);
+
+    this.setVelocity(0);
+    this.setAngle(0);
   }
 
   public set jumping (isJumping: boolean) {
