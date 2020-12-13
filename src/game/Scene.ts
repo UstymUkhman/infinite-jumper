@@ -6,6 +6,13 @@ import CONFIG from '@Game/config.json';
 import Player from '@Game/Player';
 import UI from '@Game/UI';
 
+import BUTTON from '@assets/button.jpg';
+import BRICK from '@assets/brick.png';
+import MARIO from '@assets/mario.png';
+import SKY from '@assets/sky.png';
+
+const TOTAL_ASSETS = 5;
+
 export default class extends Scene {
   private platformTargetPosition = CONFIG.platform.width / 2;
   private platforms!: Physics.Arcade.StaticGroup;
@@ -21,6 +28,7 @@ export default class extends Scene {
   private gamePaused = true;
   private gameOver = false;
 
+  private loadedAssets = 0;
   private halfHeight = 0;
   private halfWidth = 0;
   private score = 0;
@@ -33,34 +41,45 @@ export default class extends Scene {
     );
 	}
 
-	private preload (): void {
-		this.load.image('sky', 'assets/sky.png');
-    this.load.image('brick', 'assets/brick.png');
-    this.load.image('button', 'assets/button.jpg');
-
-    this.load.spritesheet('mario', 'assets/mario.png', {
-      frameHeight: CONFIG.player.height,
-      frameWidth: CONFIG.player.width
-    });
-	}
-
 	private create (): void {
-    this.halfHeight = this.scale.height / 2;
     this.halfWidth = this.scale.width / 2;
+    this.halfHeight = this.scale.height / 2;
 
-    this.createUI();
-    this.createSky();
-    this.createPlayer();
+    this.textures.on('addtexture', this.init, this);
+    this.textures.addBase64('button', BUTTON);
+    this.textures.addBase64('brick', BRICK);
+    this.textures.addBase64('sky', SKY);
 
-    this.createCamera();
-    this.createInputEvents();
+    const mario = new Image();
 
-    this.player.flipX = this.leftPlatform;
-    // this.scale.on('resize', this.resize, this);
-    this.platforms = this.physics.add.staticGroup();
+    mario.onload = () => {
+      this.textures.addSpriteSheet('mario', mario, {
+        frameHeight: CONFIG.player.height,
+        frameWidth: CONFIG.player.width
+      });
 
-    this.physics.add.collider(this.player, this.createGround());
-    this.physics.add.collider(this.player, this.platforms, this.onPlatformCollision, undefined, this);
+      this.init();
+    };
+
+    mario.src = MARIO;
+  }
+
+  private init (): void {
+    if (++this.loadedAssets > TOTAL_ASSETS) {
+      this.createUI();
+      this.createSky();
+      this.createPlayer();
+
+      this.createCamera();
+      this.createInputEvents();
+
+      this.player.flipX = this.leftPlatform;
+      this.scale.on('resize', this.resize, this);
+      this.platforms = this.physics.add.staticGroup();
+
+      this.physics.add.collider(this.player, this.createGround());
+      this.physics.add.collider(this.player, this.platforms, this.onPlatformCollision, undefined, this);
+    }
   }
 
   private createUI (): void {
@@ -207,17 +226,12 @@ export default class extends Scene {
   }
 
   private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image, timing: number): void {
-    platform.body && platform.refreshBody();
+    platform.refreshBody();
     if (!this.autoplaying) return;
 
     const progress = tween.data[0].progress || 0;
     progress >= timing && this.player.jump();
   }
-
-  // private resize (): void {
-  //   console.log(arguments);
-  //   console.log(this.scale);
-  // }
 
   private restart (): void {
     this.score = 0;
@@ -225,10 +239,16 @@ export default class extends Scene {
 
     this.platforms.clear(true, true);
     this.camera.follow(this.player);
+
+    this.platformAnimation.stop();
     this.playerRotation.stop();
     this.createPlatform();
 
     this.gamePaused = false;
     this.gameOver = false;
+  }
+
+  private resize (): void {
+    location.reload(); // For debug purposes
   }
 };

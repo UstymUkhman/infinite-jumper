@@ -18,6 +18,22 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg)$/i,
+        use: [{
+          loader: 'image-webpack-loader',
+          options: {
+            bypassOnDebug: true,
+            enforce: 'pre'
+          }
+        }, {
+          loader: 'url-loader',
+          options: {
+            name: 'assets/[name].[ext]',
+            limit: 8192
+          }
+        }]
       }
     ]
   },
@@ -26,6 +42,7 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js', '.json'],
 
     alias: {
+      '@assets': path.resolve(__dirname, './src/assets'),
       '@Game': path.resolve(__dirname, './src/game')
     }
   },
@@ -45,8 +62,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'src/index.html' },
-        { from: 'src/index.css' },
-        { from: 'assets/**/*' }
+        { from: 'src/index.css' }
       ]
     }),
 

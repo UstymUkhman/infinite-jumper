@@ -6,6 +6,7 @@
 	},
 
 	"js-import.alias": {
+		"@assets": "./src/assets",
 		"@Game": "./src/game"
 	},
 

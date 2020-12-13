@@ -10,14 +10,16 @@
     "type": "git",
     "url": "https://github.com/UstymUkhman/innovecs.git"
   },
-  "scripts": { 
-    "build": "webpack", 
-    "dev": "webpack-dev-server" 
+  "scripts": {
+    "build": "webpack",
+    "dev": "webpack-dev-server"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^6.4.0",
+    "image-webpack-loader": "^7.0.1",
     "ts-loader": "^8.0.11",
     "typescript": "^4.1.2",
+    "url-loader": "^4.1.1",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0"
