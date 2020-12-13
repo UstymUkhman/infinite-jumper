@@ -3,9 +3,11 @@ import type { Scene, GameObjects } from 'phaser';
 import { clamp } from '@Game/utils';
 
 export default class UI {
+  private autoplayButton!: GameObjects.Sprite;
   private downloadButton!: GameObjects.Sprite;
   private restartButton!: GameObjects.Sprite;
 
+  private autoplayText!: GameObjects.Text;
   private downloadText!: GameObjects.Text;
   private restartText!: GameObjects.Text;
 
@@ -23,14 +25,15 @@ export default class UI {
     const textStyle = this.getStyle(width);
 
     const buttonHeight = height / 2.0;
+    const buttonWidth = width / 2.0;
     const textHeight = height / 3.2;
-    const buttonWidth = width / 2;
 
     this.startText = scene.add.text(0, textHeight, 'Tap!', textStyle);
     this.gameOverText = scene.add.text(0, textHeight, 'Game Over!', textStyle);
 
     this.storeURL = scene.sys.game.device.os.iOS ? STORE.AppStore : STORE.PlayStore;
 
+    this.createAutoplayButton(scene, buttonWidth, height / 16.0);
     this.createDownloadButton(scene, buttonWidth, buttonHeight);
     this.createRestartButton(scene, buttonWidth, buttonHeight);
 
@@ -41,6 +44,22 @@ export default class UI {
     this.gameOverText.visible = false;
     this.gameOverText.depth = 1;
     this.startText.depth = 1;
+  }
+
+  private createAutoplayButton (scene: Scene, width: number, height: number): void {
+    this.autoplayText = this.createButtonText(scene, 'Autoplay', width, height);
+    this.autoplayButton = this.createButton(scene, width * 1.5, height);
+
+    this.autoplayButton.on('pointerup', () => {
+      document.dispatchEvent(new CustomEvent('game:autoplay'));
+      this.autoplayButton.clearTint();
+    });
+
+    this.autoplayButton.setScrollFactor(0);
+    this.autoplayText.setScrollFactor(0);
+
+    this.autoplayButton.visible = true;
+    this.autoplayText.visible = true;
   }
 
   private createDownloadButton (scene: Scene, width: number, height: number): void {

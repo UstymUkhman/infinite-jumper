@@ -4,6 +4,8 @@
     "PlayStore": "https://play.google.com/store"
   },
 
+  "assets": 5,
+
   "player": {
     "width": 70,
     "height": 108,

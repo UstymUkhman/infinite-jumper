@@ -11,8 +11,6 @@ import BRICK from '@assets/brick.png';
 import MARIO from '@assets/mario.png';
 import SKY from '@assets/sky.png';
 
-const TOTAL_ASSETS = 5;
-
 export default class extends Scene {
   private platformTargetPosition = CONFIG.platform.width / 2;
   private platforms!: Physics.Arcade.StaticGroup;
@@ -35,6 +33,10 @@ export default class extends Scene {
 
 	public constructor () {
     super({ key: 'Scene' });
+
+    document.addEventListener('game:autoplay',
+      this.autoplay.bind(this), false
+    );
 
     document.addEventListener('game:restart',
       this.restart.bind(this), false
@@ -65,7 +67,7 @@ export default class extends Scene {
   }
 
   private init (): void {
-    if (++this.loadedAssets > TOTAL_ASSETS) {
+    if (++this.loadedAssets > CONFIG.assets) {
       this.createUI();
       this.createSky();
       this.createPlayer();
@@ -112,7 +114,7 @@ export default class extends Scene {
 
   private createInputEvents (): void {
     this.input.on('pointerdown', () => {
-      if (this.gameOver) return;
+      if (this.gameOver || this.autoplaying) return;
 
       if (this.gamePaused) {
         this.gamePaused = false;
@@ -231,6 +233,16 @@ export default class extends Scene {
 
     const progress = tween.data[0].progress || 0;
     progress >= timing && this.player.jump();
+  }
+
+  private autoplay (): void {
+    this.autoplaying = !this.autoplaying;
+
+    if (this.gamePaused) {
+      this.gamePaused = false;
+      this.ui.hideStartText();
+      this.createPlatform();
+    }
   }
 
   private restart (): void {
