@@ -1,4 +1,9 @@
 {
+  "stores": {
+    "AppStore": "https://www.apple.com/app-store/",
+    "PlayStore": "https://play.google.com/store"
+  },
+
   "player": {
     "width": 70,
     "height": 108,

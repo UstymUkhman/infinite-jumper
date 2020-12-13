@@ -1,11 +1,14 @@
 const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const build = require('yargs').argv.env === 'build';
+
+process.env.NODE_ENV = build ? 'production' : 'development';
 
 module.exports = {
+  devtool: build ? false : 'inline-source-map',
+  mode: process.env.NODE_ENV,
   name: 'innovecs',
-  mode: 'development',
-  devtool: 'inline-source-map',
 
   entry: {
     app: './src/index.ts',
@@ -68,11 +71,20 @@ module.exports = {
 
     new webpack.DefinePlugin({
       'typeof CANVAS_RENDERER': JSON.stringify(true),
-      'typeof WEBGL_RENDERER': JSON.stringify(true)
+      'typeof WEBGL_RENDERER': JSON.stringify(true),
+      PRODUCTION: JSON.stringify(build)
     })
   ],
 
   optimization: {
+    mergeDuplicateChunks: true,
+    flagIncludedChunks: true,
+    removeEmptyChunks: true,
+
+    namedModules: true,
+    namedChunks: true,
+    minimize: build,
+
     splitChunks: {
       cacheGroups: {
         commons: {

@@ -1,6 +1,6 @@
-import { clamp } from '@Game/utils';
-import type { Cameras } from 'phaser';
 import type Player from '@Game/Player';
+import type { Cameras } from 'phaser';
+import { clamp } from '@Game/utils';
 
 export default class CameraManager {
   private initialPosition = 0;

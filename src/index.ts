@@ -29,7 +29,7 @@ export const game = new Game({
 
     arcade: {
       gravity: { y: 981 },
-      debug: true
+      debug: !PRODUCTION
     }
   },
 

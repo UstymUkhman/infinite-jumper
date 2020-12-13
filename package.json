@@ -11,7 +11,7 @@
     "url": "https://github.com/UstymUkhman/innovecs.git"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "webpack --env build",
     "dev": "webpack-dev-server"
   },
   "devDependencies": {

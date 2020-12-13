@@ -248,7 +248,8 @@ export default class extends Scene {
     this.gameOver = false;
   }
 
+  // Debug purposes only:
   private resize (): void {
-    location.reload(); // For debug purposes
+    location.reload();
   }
 };
