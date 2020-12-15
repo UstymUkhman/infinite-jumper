@@ -6,12 +6,11 @@
 	},
 
 	"js-import.alias": {
-		"@assets": "./src/assets",
 		"@Game": "./src/game"
 	},
 
 	"folders": [{
-    "name": "innovecs",
+    "name": "Infinite Jumper",
 		"path": "."
 	}]
 }

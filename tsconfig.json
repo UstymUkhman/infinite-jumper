@@ -21,7 +21,6 @@
     "typeRoots": ["node_modules/@types"],
     
     "paths": {
-      "@assets/*": ["src/assets/*"],
       "@Game/*": ["src/game/*"]
     },
 
@@ -40,6 +39,6 @@
 
   "exclude": [
     "node_modules",
-    "dist"
+    "public"
   ]
 }

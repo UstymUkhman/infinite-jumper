@@ -6,14 +6,15 @@ html, body {
   text-rendering: optimizeLegibility;
 
   font-variant-ligatures: none;
+  background-color: #070B34;
   text-size-adjust: 100%;
+  letter-spacing: normal;
+
+  line-height: normal;
   font-weight: normal;
   font-kerning: none;
-  font-style: normal;
 
-  background-color: #000000;
-  letter-spacing: normal;
-  line-height: normal;
+  font-style: normal;
   user-select: none;
   overflow: hidden;
 
@@ -28,23 +29,15 @@ html, body {
 }
 
 #game {
+  position: absolute;
+  display: block;
+
   height: 100%;
   width: 100%;
-}
+  
+  padding: 0;
+  margin: 0;
 
-#score {
-  font-family: Courier, sans-serif;
-  text-align: center;
-  font-size: 7.5vw;
-  color: #ffffff;
-
-  position: fixed;
-  display: none;
-
-  width: 100%;
-  top: 10vw;
-}
-
-#score.visible {
-  display: block;
+  left: 0;
+  top: 0;
 }

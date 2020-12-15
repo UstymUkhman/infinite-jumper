@@ -1,74 +1,33 @@
 const path = require('path');
 const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
-const build = require('yargs').argv.env === 'build';
 
+const build = require('yargs').argv.env === 'build';
 process.env.NODE_ENV = build ? 'production' : 'development';
 
 module.exports = {
   devtool: build ? false : 'inline-source-map',
+  entry: path.resolve('./src/index.ts'),
   mode: process.env.NODE_ENV,
-  name: 'innovecs',
-
-  entry: {
-    app: './src/index.ts',
-    vendors: ['phaser']
-  },
+  name: 'Infinite Jumper',
 
   module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.(jpe?g|png|gif|svg)$/i,
-        use: [{
-          loader: 'image-webpack-loader',
-          options: {
-            bypassOnDebug: true,
-            enforce: 'pre'
-          }
-        }, {
-          loader: 'url-loader',
-          options: {
-            name: 'assets/[name].[ext]',
-            limit: 8192
-          }
-        }]
-      }
-    ]
+    rules: [{
+      test: /\.tsx?$/,
+      use: 'ts-loader',
+      exclude: /node_modules/
+    }]
   },
 
   resolve: {
+    modules: [path.resolve('./node_modules'), path.resolve('./src')],
     extensions: ['.ts', '.tsx', '.js', '.json'],
 
     alias: {
-      '@assets': path.resolve(__dirname, './src/assets'),
       '@Game': path.resolve(__dirname, './src/game')
     }
   },
 
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist')
-  },
-
-  devServer: {
-    contentBase: path.resolve(__dirname, 'dist'),
-    writeToDisk: true,
-    open: true
-  },
-
   plugins: [
-    new CopyPlugin({
-      patterns: [
-        { from: 'src/index.html' },
-        { from: 'src/index.css' }
-      ]
-    }),
-
     new webpack.DefinePlugin({
       'typeof CANVAS_RENDERER': JSON.stringify(true),
       'typeof WEBGL_RENDERER': JSON.stringify(true),
@@ -76,23 +35,54 @@ module.exports = {
     })
   ],
 
+  output: {
+    library: build ? 'infinite-jumper' : '',
+    libraryTarget: build ? 'umd' : 'var',
+    chunkFilename: 'scripts/[name].js',
+
+    path: path.resolve('./public'),
+    publicPath: build ? './' : '/',
+    libraryExport: 'default',
+
+    umdNamedDefine: true,
+    filename: 'index.js',
+    globalObject: 'this'
+  },
+
   optimization: {
     mergeDuplicateChunks: true,
     flagIncludedChunks: true,
     removeEmptyChunks: true,
-
     namedModules: true,
     namedChunks: true,
-    minimize: build,
+    minimize: build
+  },
 
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors.game',
-          chunks: 'all'
-        }
-      }
-    }
+  devServer: {
+    contentBase: path.join(__dirname, './public'),
+    headers: { 'Content-Encoding': 'none' },
+    host: process.env.HOST || 'localhost',
+    port: +process.env.PORT || 8080,
+
+    watchOptions: { poll: false },
+    clientLogLevel: 'warning',
+    watchContentBase: true,
+    writeToDisk: false,
+    publicPath: '/',
+
+    compress: true,
+    overlay: true,
+    quiet: false,
+    open: false,
+    hot: true
+  },
+
+  node: {
+    child_process: 'empty',
+    setImmediate: false,
+    dgram: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    fs: 'empty'
   }
 };
