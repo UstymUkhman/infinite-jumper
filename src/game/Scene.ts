@@ -1,10 +1,13 @@
 import CONFIG from '@Game/config.json';
-import { Scene, GameObjects, Scale } from 'phaser';
+import { Scene, Physics, GameObjects, Scale } from 'phaser';
 
-export default class extends Scene {
-  private clouds!: GameObjects.Group;
-  private stars!: GameObjects.Image;
+export default class extends Scene
+{
   private sky!: GameObjects.Image;
+  private stars!: GameObjects.Image;
+  private clouds!: GameObjects.Group;
+
+  private ground?: Physics.Arcade.StaticGroup;
 
   private center = {
     y: window.innerHeight / 2,
@@ -19,6 +22,7 @@ export default class extends Scene {
     this.load.image('sky', 'assets/sky.png');
     this.load.image('stars', 'assets/stars.png');
     this.load.image('cloud', 'assets/cloud.png');
+    this.load.image('brick', 'assets/brick.png');
   }
 
   private create (): void {
@@ -28,15 +32,12 @@ export default class extends Scene {
   }
 
   private createEnvironment (): void {
-    const { width, height } = this.scale;
-
-    this.stars = this.add.image(0, 0, 'stars').setScrollFactor(0, 0);
     this.sky = this.add.image(0, 0, 'sky').setScrollFactor(0, 0.95);
-    this.clouds = this.add.group({ name: 'clouds' });
+    this.stars = this.add.image(0, 0, 'stars').setScrollFactor(0, 0);
 
-    this.setSky(width, height);
-    this.setClouds(width);
-    this.setStars(width);
+    this.clouds = this.add.group(CONFIG.clouds.map(([x, y, scroll]) =>
+      this.add.image(x, y, 'cloud').setScrollFactor(0, scroll)
+    ));
   }
 
   private setSky (width: number, height: number): void {
@@ -64,24 +65,37 @@ export default class extends Scene {
   }
 
   private setClouds (width: number): void {
-    const cloudWidth = width / 7.5;
+    const xs = width < 992 ? 5 : 7.5;
+    const ys = width < 992 ? 1 : 2.5;
+
+    const cloudWidth = width / xs;
     const cloudHeight = cloudWidth / 1.406;
 
-    CONFIG.clouds.forEach(position => {
+    this.clouds.children.iterate((child: GameObjects.GameObject, index: number) => {
+      const [offsetX, offsetY] = CONFIG.clouds[index];
+      const cloud = child as GameObjects.Image;
       let { x, y } = this.center;
 
-      x += x * position[0];
-      y += y * position[1];
-
-      const cloud = this.add.image(x, y, 'cloud');
+      x += x * offsetX;
+      y += y * offsetY * ys;
+      cloud.setPosition(x, y);
 
       cloud.displayWidth = cloudWidth;
       cloud.displayHeight = cloudHeight;
+    });
+  }
 
-      this.clouds.add(cloud);
+  private setGround (width: number, height: number): void {
+    const bricks = Math.ceil(width / 64);
+    this.ground?.clear(true, true);
+
+    this.ground = this.physics.add.staticGroup({
+      defaultKey: 'brick'
     });
 
-    this.clouds.setY(this.center.y);
+    for (let r = 2; r--;)
+      for (let c = bricks; c--;)
+        this.ground.create(c * 64 + 32, height - (r * 64 + 32));
   }
 
   private resize (size: Scale.ScaleManager): void {
@@ -91,7 +105,8 @@ export default class extends Scene {
     this.center = { x: width / 2, y: height / 2 };
 
     this.setSky(width, height);
-    this.setClouds(width);
     this.setStars(width);
+    this.setClouds(width);
+    this.setGround(width, height);
   }
 };
