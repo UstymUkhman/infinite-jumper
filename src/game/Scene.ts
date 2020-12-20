@@ -1,5 +1,7 @@
-import CONFIG from '@Game/config.json';
 import { Scene, Physics, GameObjects, Scale } from 'phaser';
+
+import CONFIG from '@Game/config.json';
+import Player from '@Game/Player';
 
 export default class extends Scene
 {
@@ -8,6 +10,7 @@ export default class extends Scene
   private clouds!: GameObjects.Group;
 
   private ground?: Physics.Arcade.StaticGroup;
+  private player!: Player;
 
   private center = {
     y: window.innerHeight / 2,
@@ -23,12 +26,25 @@ export default class extends Scene
     this.load.image('stars', 'assets/stars.png');
     this.load.image('cloud', 'assets/cloud.png');
     this.load.image('brick', 'assets/brick.png');
+
+    this.load.spritesheet('mario', 'assets/mario.png', {
+      frameHeight: 108,
+      frameWidth: 70
+    });
   }
 
   private create (): void {
-    this.scale.on('resize', this.resize, this);
     this.createEnvironment();
-    this.resize(this.scale);
+    this.createInputEvents();
+
+    this.player = new Player(this, 'mario');
+    this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
+
+    this.physics.add.collider(this.player, this.ground as Physics.Arcade.StaticGroup);
+    // this.physics.add.collider(this.player, this.platforms, this.onPlatformCollision, undefined, this);
+
+    this.scale.on('resize', this.onResize, this);
+    this.onResize(this.scale);
   }
 
   private createEnvironment (): void {
@@ -38,6 +54,12 @@ export default class extends Scene
     this.clouds = this.add.group(CONFIG.clouds.map(([x, y, scroll]) =>
       this.add.image(x, y, 'cloud').setScrollFactor(0, scroll)
     ));
+  }
+
+  private createInputEvents (): void {
+    this.input.on('pointerdown', () => {
+      this.player.jump();
+    });
   }
 
   private setSky (width: number, height: number): void {
@@ -83,16 +105,12 @@ export default class extends Scene
     const bricks = Math.ceil(width / 64);
     this.ground?.clear(true, true);
 
-    this.ground = this.physics.add.staticGroup({
-      defaultKey: 'brick'
-    });
-
     for (let r = 2; r--;)
       for (let c = bricks; c--;)
-        this.ground.create(c * 64 + 32, height - (r * 64 + 32));
+        this.ground?.create(c * 64 + 32, height - (r * 64 + 32));
   }
 
-  private resize (size: Scale.ScaleManager): void {
+  private onResize (size: Scale.ScaleManager): void {
     const { width, height } = size;
 
     this.cameras.resize(width, height);
@@ -100,6 +118,8 @@ export default class extends Scene
 
     this.setSky(width, height);
     this.setClouds(width);
+
     this.setGround(width, height);
+    this.player.resize(width, height);
   }
 };
