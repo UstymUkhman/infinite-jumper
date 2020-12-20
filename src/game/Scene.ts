@@ -32,8 +32,8 @@ export default class extends Scene
   }
 
   private createEnvironment (): void {
-    this.sky = this.add.image(0, 0, 'sky').setScrollFactor(0, 0.95);
-    this.stars = this.add.image(0, 0, 'stars').setScrollFactor(0, 0);
+    this.sky = this.add.image(0, 0, 'sky').setScrollFactor(0, 1);
+    this.stars = this.add.image(0, 0, 'stars').setScrollFactor(0).setAlpha(0);
 
     this.clouds = this.add.group(CONFIG.clouds.map(([x, y, scroll]) =>
       this.add.image(x, y, 'cloud').setScrollFactor(0, scroll)
@@ -47,20 +47,14 @@ export default class extends Scene
     this.sky.displayHeight = height * 6;
 
     this.sky.setPosition(
-      this.center.x,
-      this.sky.displayHeight / -midLevel
+      this.center.x, this.sky.displayHeight / -midLevel
     );
-  }
 
-  private setStars (width: number): void {
-    const topLevel = CONFIG.levels - 1.5;
-
-    this.stars.displayWidth = width;
-    this.stars.displayHeight = width / 16 * 9;
+    this.stars.displayWidth = height / 9 * 16;
+    this.stars.displayHeight = height;
 
     this.stars.setPosition(
-      this.center.x,
-      this.stars.displayHeight * -topLevel
+      this.center.x, this.stars.displayHeight / 2
     );
   }
 
@@ -105,7 +99,6 @@ export default class extends Scene
     this.center = { x: width / 2, y: height / 2 };
 
     this.setSky(width, height);
-    this.setStars(width);
     this.setClouds(width);
     this.setGround(width, height);
   }

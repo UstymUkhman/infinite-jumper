@@ -5,18 +5,28 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 
+  font-family: 'Press Start 2P';
   font-variant-ligatures: none;
+  backface-visibility: hidden;
   background-color: #070B34;
+  
   text-size-adjust: 100%;
   letter-spacing: normal;
 
   line-height: normal;
-  font-weight: normal;
   font-kerning: none;
-
   font-style: normal;
   user-select: none;
+  font-weight: 400;
+  appearance: none;
   overflow: hidden;
+  color: #FFFFFF;
+
+  max-height: 100%;
+  min-height: 100%;
+
+  max-width: 100%;
+  min-width: 100%;
 
   height: 100%;
   width: 100%;
@@ -28,7 +38,7 @@ html, body {
   top: 0;
 }
 
-#game {
+#game, section {
   position: absolute;
   display: block;
 
@@ -40,4 +50,66 @@ html, body {
 
   left: 0;
   top: 0;
+}
+
+h1, h2, h3, h4, h5, h6, p, span {
+  text-align: center;
+  display: block;
+
+  padding: 0;
+  margin: 0;
+}
+
+.start {
+  background-color: rgba(7, 11, 52, 0.75);
+}
+
+.start h1 {
+  transform: translateY(-50%);
+  position: absolute;
+
+  line-height: 6vw;
+  font-size: 6vw;
+
+  height: 6vw;
+  width: 100%;
+
+  top: 50%;
+  left: 0;
+}
+
+.start h3 {
+  transform: translateY(-33%);
+  position: absolute;
+
+  line-height: 4vw;
+  font-size: 4vw;
+
+  height: 4vw;
+  width: 100%;
+
+  top: 33%;
+  left: 0;
+}
+
+.start span {
+  transform: translateY(-67%);
+  position: absolute;
+
+  line-height: 16px;
+  font-size: 16px;
+
+  height: 16px;
+  width: 100%;
+
+  top: 67%;
+  left: 0;
+}
+
+@media only screen and (max-width: 767px) {
+  .start span {  
+    line-height: 10px;
+    font-size: 10px;
+    height: 10px;
+  }
 }
