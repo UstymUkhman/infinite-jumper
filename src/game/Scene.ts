@@ -1,4 +1,5 @@
-import { Scene, Physics, GameObjects, Scale } from 'phaser';
+import { Scene, Physics, GameObjects, Scale, Tweens } from 'phaser';
+import { randomInt /*, randomEasing */ } from '@Game/utils';
 
 import CONFIG from '@Game/config.json';
 import Player from '@Game/Player';
@@ -9,8 +10,15 @@ export default class extends Scene
   private stars!: GameObjects.Image;
   private clouds!: GameObjects.Group;
 
+  private platforms!: Physics.Arcade.StaticGroup;
   private ground?: Physics.Arcade.StaticGroup;
+  private leftPlatform = Math.random() < 0.5;
+  private platformAnimation?: Tweens.Tween;
+  private playerRotation?: Tweens.Tween;
+
+  private gameOver = false;
   private player!: Player;
+  private score = 0;
 
   private center = {
     y: window.innerHeight / 2,
@@ -35,16 +43,18 @@ export default class extends Scene
 
   private create (): void {
     this.createEnvironment();
-    this.createInputEvents();
-
     this.player = new Player(this, 'mario');
+    this.platforms = this.physics.add.staticGroup();
     this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
 
     this.physics.add.collider(this.player, this.ground as Physics.Arcade.StaticGroup);
-    // this.physics.add.collider(this.player, this.platforms, this.onPlatformCollision, undefined, this);
+    this.physics.add.collider(this.player, this.platforms, this.onPlatformCollision, undefined, this);
 
     this.scale.on('resize', this.onResize, this);
     this.onResize(this.scale);
+
+    this.createInputEvents();
+    this.createNextPlatform(4);
   }
 
   private createEnvironment (): void {
@@ -57,9 +67,94 @@ export default class extends Scene
   }
 
   private createInputEvents (): void {
-    this.input.on('pointerdown', () => {
-      this.player.jump();
+    this.input.on('pointerdown', this.player.jump.bind(this.player));
+  }
+
+  private createNextPlatform (bricks: number): void {
+    const halfWidth = 64 * bricks / 2;
+    // const [easing, minDuration] = randomEasing();
+
+    const x = this.leftPlatform ? 0 : this.scale.width;
+    const y = this.scale.height - 160 - this.score * 64;
+
+    const position = this.leftPlatform ? -halfWidth : halfWidth;
+    const platform = this.physics.add.staticImage(x + position, y, 'brick');
+    const destination = `${this.leftPlatform ? '+' : '-'}= ${this.center.x + halfWidth}`;
+
+    platform.setData('index', this.platforms.children.size);
+    this.player.lookLeft = this.leftPlatform;
+    this.platforms.add(platform, true);
+
+    this.platformAnimation = this.add.tween({
+      onUpdate: (tween: Tweens.Tween, platform: Physics.Arcade.Image) =>
+        this.updatePlatformAnimation(tween, platform),
+
+      duration: randomInt(500, 2500),
+      delay: randomInt(0, 1000),
+
+      props: { x: destination },
+      targets: platform
     });
+  }
+
+  private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image): void {
+    platform.refreshBody();
+  }
+
+  private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
+    if (this.gameOver) return;
+    const lastPlatform = this.platforms.children.size - 1;
+
+    this.gameOver = this.physics.world.overlap(this.player,
+      this.platforms.children.entries[lastPlatform]
+    );
+
+    if (this.gameOver) this.onGameOver();
+
+    else if (this.player.jumping) {
+      this.player.jumping = false;
+
+      if (platform.getData('index') === lastPlatform) {
+        this.onPlatformLanding();
+      }
+    }
+  }
+
+  private onPlatformLanding (): void {
+    this.leftPlatform = Math.random() < 0.5;
+
+    const event = new CustomEvent('score:update', {
+      detail: { score: ++this.score }
+    });
+
+    this.platformAnimation?.stop();
+    document.dispatchEvent(event);
+    this.createNextPlatform(4);
+  }
+
+  private onGameOver (): void {
+    this.removeInputEvents();
+
+    this.playerRotation = this.add.tween(
+      this.player.die(this.leftPlatform)
+    );
+  }
+
+  private removeInputEvents (): void {
+    this.input.off('pointerdown');
+  }
+
+  private onResize (size: Scale.ScaleManager): void {
+    const { width, height } = size;
+
+    this.cameras.resize(width, height);
+    this.center = { x: width / 2, y: height / 2 };
+
+    this.setSky(width, height);
+    this.setClouds(width);
+
+    this.setGround(width, height);
+    this.player.resize(width, height);
   }
 
   private setSky (width: number, height: number): void {
@@ -108,18 +203,5 @@ export default class extends Scene
     for (let r = 2; r--;)
       for (let c = bricks; c--;)
         this.ground?.create(c * 64 + 32, height - (r * 64 + 32));
-  }
-
-  private onResize (size: Scale.ScaleManager): void {
-    const { width, height } = size;
-
-    this.cameras.resize(width, height);
-    this.center = { x: width / 2, y: height / 2 };
-
-    this.setSky(width, height);
-    this.setClouds(width);
-
-    this.setGround(width, height);
-    this.player.resize(width, height);
   }
 };

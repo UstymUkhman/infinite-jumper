@@ -42,6 +42,27 @@ export default class Player extends Physics.Arcade.Sprite
     this.setPosition(this.position.x, this.position.y);
   }
 
+  public die (fromLeft: boolean) {
+    const direction = fromLeft ? 1 : -1;
+
+    this.offsetTime = setTimeout(
+      this.setOffset.bind(this, 0, -30), 250
+    );
+
+    this.setVelocityX(250 * direction);
+    this.setCollideWorldBounds(true);
+
+    this.flipX = fromLeft;
+    this.alive = false;
+
+    return {
+      props: { angle: 90 * direction },
+      ease: 'Quad.easeInOut',
+      duration: 500,
+      targets: this
+    };
+  }
+
   public reset (): void {
     const { x, y } = this.position;
     this.setCollideWorldBounds(false);
@@ -55,5 +76,9 @@ export default class Player extends Physics.Arcade.Sprite
 
     this.jumping = false;
     this.alive = true;
+  }
+
+  public set lookLeft (left: boolean) {
+    this.flipX = left;
   }
 };
