@@ -10,7 +10,7 @@ export default class extends Scene
   private stars!: GameObjects.Image;
   private clouds!: GameObjects.Group;
 
-  private platforms!: Physics.Arcade.StaticGroup;
+  private platform!: Physics.Arcade.StaticGroup;
   private ground?: Physics.Arcade.StaticGroup;
   private leftPlatform = Math.random() < 0.5;
   private platformAnimation?: Tweens.Tween;
@@ -44,11 +44,9 @@ export default class extends Scene
   private create (): void {
     this.createEnvironment();
     this.player = new Player(this, 'mario');
-    this.platforms = this.physics.add.staticGroup();
-    this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
 
+    this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
     this.physics.add.collider(this.player, this.ground as Physics.Arcade.StaticGroup);
-    this.physics.add.collider(this.player, this.platforms, this.onPlatformCollision, undefined, this);
 
     this.scale.on('resize', this.onResize, this);
     this.onResize(this.scale);
@@ -71,29 +69,31 @@ export default class extends Scene
   }
 
   private createNextPlatform (bricks: number): void {
-    const halfWidth = 64 * bricks / 2;
+    const width = 64 * bricks;
     // const [easing, minDuration] = randomEasing();
 
-    const x = this.leftPlatform ? 0 : this.scale.width;
+    const x = this.leftPlatform ? 32 - width : this.scale.width + 32;
     const y = this.scale.height - 160 - this.score * 64;
 
-    const position = this.leftPlatform ? -halfWidth : halfWidth;
-    const platform = this.physics.add.staticImage(x + position, y, 'brick');
-    const destination = `${this.leftPlatform ? '+' : '-'}= ${this.center.x + halfWidth}`;
+    this.platform = this.physics.add.staticGroup({
+      setXY: { x, y, stepX: 64 },
+      defaultKey: 'brick',
+      key: 'brick',
+      repeat: 3
+    });
 
-    platform.setData('index', this.platforms.children.size);
     this.player.lookLeft = this.leftPlatform;
-    this.platforms.add(platform, true);
+    this.physics.add.collider(this.player, this.platform, this.onPlatformCollision, undefined, this);
 
     this.platformAnimation = this.add.tween({
+      props: { x: `${this.leftPlatform ? '+' : '-'}= ${this.center.x + width / 2}` },
+
       onUpdate: (tween: Tweens.Tween, platform: Physics.Arcade.Image) =>
         this.updatePlatformAnimation(tween, platform),
 
+      targets: this.platform.getChildren(),
       duration: randomInt(500, 2500),
-      delay: randomInt(0, 1000),
-
-      props: { x: destination },
-      targets: platform
+      delay: randomInt(0, 1000)
     });
   }
 
@@ -103,20 +103,13 @@ export default class extends Scene
 
   private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
     if (this.gameOver) return;
-    const lastPlatform = this.platforms.children.size - 1;
 
-    this.gameOver = this.physics.world.overlap(this.player,
-      this.platforms.children.entries[lastPlatform]
-    );
-
+    this.gameOver = this.physics.world.overlap(player, platform);
     if (this.gameOver) this.onGameOver();
 
     else if (this.player.jumping) {
       this.player.jumping = false;
-
-      if (platform.getData('index') === lastPlatform) {
-        this.onPlatformLanding();
-      }
+      this.onPlatformLanding();
     }
   }
 
