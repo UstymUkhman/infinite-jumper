@@ -5,6 +5,7 @@ export default class Player extends Physics.Arcade.Sprite
 {
   private position: Math.Vector2;
   private offsetTime?: number;
+  private size: Math.Vector2;
 
   public jumping = false;
   private alive = true;
@@ -17,6 +18,10 @@ export default class Player extends Physics.Arcade.Sprite
 
     this.position = new Math.Vector2(
       scene.scale.width / 2, scene.scale.height - 182
+    );
+
+    this.size = new Math.Vector2(
+      scene.scale.width, scene.scale.height
     );
 
     scene.anims.create({
@@ -38,8 +43,14 @@ export default class Player extends Physics.Arcade.Sprite
   }
 
   public resize (width: number, height: number): void {
-    this.position.set(width / 2, height - 182);
-    this.setPosition(this.position.x, this.position.y);
+    const x = (this.body.position.x + 35) * width / this.size.x;
+    const y = (this.body.position.y - 54) * height / this.size.y;
+
+    this.size.set(width, height);
+    this.body.position.set(x, y);
+
+    this.position.set(x, y);
+    this.setPosition(x, y);
   }
 
   public die (fromLeft: boolean) {

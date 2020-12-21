@@ -18,7 +18,9 @@ export const game = new Game({
   },
 
   scale: {
+    autoCenter: Scale.CENTER_BOTH,
     mode: Scale.RESIZE,
+
     parent: 'game',
     height: '100%',
     width: '100%'

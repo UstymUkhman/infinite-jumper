@@ -16,6 +16,7 @@ export default class extends Scene
   private platformAnimation?: Tweens.Tween;
   private playerRotation?: Tweens.Tween;
 
+  private autoplay = false;
   private gameOver = false;
   private player!: Player;
   private score = 0;
@@ -52,7 +53,7 @@ export default class extends Scene
     this.onResize(this.scale);
 
     this.createInputEvents();
-    this.createNextPlatform(4);
+    this.createNextPlatform(3);
   }
 
   private createEnvironment (): void {
@@ -78,27 +79,26 @@ export default class extends Scene
     this.platform = this.physics.add.staticGroup({
       setXY: { x, y, stepX: 64 },
       defaultKey: 'brick',
-      key: 'brick',
-      repeat: 3
+      repeat: bricks - 1,
+      key: 'brick'
     });
+
+
+    this.platform.getChildren().forEach(platform =>
+      platform.setData('index', this.score)
+    );
 
     this.player.lookLeft = this.leftPlatform;
     this.physics.add.collider(this.player, this.platform, this.onPlatformCollision, undefined, this);
 
     this.platformAnimation = this.add.tween({
       props: { x: `${this.leftPlatform ? '+' : '-'}= ${this.center.x + width / 2}` },
-
-      onUpdate: (tween: Tweens.Tween, platform: Physics.Arcade.Image) =>
-        this.updatePlatformAnimation(tween, platform),
+      onUpdate: (tween, platform) => platform.refreshBody(),
 
       targets: this.platform.getChildren(),
       duration: randomInt(500, 2500),
       delay: randomInt(0, 1000)
     });
-  }
-
-  private updatePlatformAnimation (tween: Tweens.Tween, platform: Physics.Arcade.Image): void {
-    platform.refreshBody();
   }
 
   private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
@@ -109,20 +109,24 @@ export default class extends Scene
 
     else if (this.player.jumping) {
       this.player.jumping = false;
-      this.onPlatformLanding();
+
+      if (platform.getData('index') === this.score) {
+        this.onPlatformLanding();
+      }
     }
   }
 
   private onPlatformLanding (): void {
     this.leftPlatform = Math.random() < 0.5;
 
-    const event = new CustomEvent('score:update', {
-      detail: { score: ++this.score }
-    });
+    !this.autoplay && document.dispatchEvent(
+      new CustomEvent('score:update', {
+        detail: { score: ++this.score }
+      })
+    );
 
     this.platformAnimation?.stop();
-    document.dispatchEvent(event);
-    this.createNextPlatform(4);
+    this.createNextPlatform(3);
   }
 
   private onGameOver (): void {
@@ -142,6 +146,7 @@ export default class extends Scene
 
     this.cameras.resize(width, height);
     this.center = { x: width / 2, y: height / 2 };
+    this.physics.world.bounds.setSize(width, height);
 
     this.setSky(width, height);
     this.setClouds(width);
