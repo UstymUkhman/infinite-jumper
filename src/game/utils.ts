@@ -45,4 +45,5 @@ export const randomInt = (min: number, max: number): number =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 export const randomEasing = (): [Easing, number] =>
-  EASINGS[randomInt(0, EASINGS.length - 1)];
+  // EASINGS[randomInt(0, EASINGS.length - 1)];
+  EASINGS[0];

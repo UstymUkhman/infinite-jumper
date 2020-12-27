@@ -1,6 +1,7 @@
 import { Scene, Physics, GameObjects, Scale, Tweens } from 'phaser';
 import { randomInt /*, randomEasing */ } from '@Game/utils';
 
+import CameraManager from '@Game/Camera';
 import CONFIG from '@Game/config.json';
 import Player from '@Game/Player';
 
@@ -16,6 +17,8 @@ export default class extends Scene
   private platformAnimation?: Tweens.Tween;
   private playerRotation?: Tweens.Tween;
 
+  private camera!: CameraManager;
+  private gamePaused = true;
   private autoplay = false;
   private gameOver = false;
   private player!: Player;
@@ -45,13 +48,16 @@ export default class extends Scene
   private create (): void {
     this.createEnvironment();
     this.player = new Player(this, 'mario');
+    this.player.lookLeft = this.leftPlatform;
 
     this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
     this.physics.add.collider(this.player, this.ground as Physics.Arcade.StaticGroup);
 
     this.scale.on('resize', this.onResize, this);
     this.onResize(this.scale);
+    this.gamePaused = false;
 
+    this.createCamera();
     this.createInputEvents();
     this.createNextPlatform(3);
   }
@@ -63,6 +69,11 @@ export default class extends Scene
     this.clouds = this.add.group(CONFIG.clouds.map(([x, y, scroll]) =>
       this.add.image(x, y, 'cloud').setScrollFactor(0, scroll)
     ));
+  }
+
+  private createCamera (): void {
+    this.camera = new CameraManager(this.cameras.main);
+    this.camera.follow(this.player, this.center.y - 182);
   }
 
   private createInputEvents (): void {
@@ -83,12 +94,10 @@ export default class extends Scene
       key: 'brick'
     });
 
-
     this.platform.getChildren().forEach(platform =>
       platform.setData('index', this.score)
     );
 
-    this.player.lookLeft = this.leftPlatform;
     this.physics.add.collider(this.player, this.platform, this.onPlatformCollision, undefined, this);
 
     this.platformAnimation = this.add.tween({
@@ -104,8 +113,9 @@ export default class extends Scene
   private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
     if (this.gameOver) return;
 
-    this.gameOver = this.physics.world.overlap(player, platform);
-    if (this.gameOver) this.onGameOver();
+    if (this.physics.world.overlap(player, platform)) {
+      this.onGameOver();
+    }
 
     else if (this.player.jumping) {
       this.player.jumping = false;
@@ -118,6 +128,7 @@ export default class extends Scene
 
   private onPlatformLanding (): void {
     this.leftPlatform = Math.random() < 0.5;
+    this.player.lookLeft = this.leftPlatform;
 
     !this.autoplay && document.dispatchEvent(
       new CustomEvent('score:update', {
@@ -125,12 +136,17 @@ export default class extends Scene
       })
     );
 
+    this.camera.zoomIn(this.score);
     this.platformAnimation?.stop();
     this.createNextPlatform(3);
   }
 
   private onGameOver (): void {
+    this.gameOver = true;
+    this.gamePaused = true;
+
     this.removeInputEvents();
+    this.camera.zoomOut(this.score * 140);
 
     this.playerRotation = this.add.tween(
       this.player.die(this.leftPlatform)
@@ -142,6 +158,8 @@ export default class extends Scene
   }
 
   private onResize (size: Scale.ScaleManager): void {
+    // const lastHeight = this.center.y * 2;
+    // const lastWidth = this.center.x * 2;
     const { width, height } = size;
 
     this.cameras.resize(width, height);
@@ -153,6 +171,16 @@ export default class extends Scene
 
     this.setGround(width, height);
     this.player.resize(width, height);
+
+    // if (this.platform) {
+    //   const platformWidth = 64 * this.platform.children.entries.length;
+    //   const firstBrick = this.platform.getChildren()[0] as GameObjects.Image;
+
+    //   this.platform.setXY(
+    //     ((width - platformWidth) / 2) * (firstBrick.x - 32) / ((lastWidth - platformWidth) / 2) + 32,
+    //     height - 160 - (lastHeight - firstBrick.y - 160) * 64, 64
+    //   ).refresh();
+    // }
   }
 
   private setSky (width: number, height: number): void {
