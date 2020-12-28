@@ -2,7 +2,8 @@ import type Player from '@Game/Player';
 import type { Cameras } from 'phaser';
 import { clamp } from '@Game/utils';
 
-export default class CameraManager {
+export default class CameraManager
+{
   private initialPosition = 54;
 
   public constructor (private camera: Cameras.Scene2D.Camera) {}
