@@ -5,7 +5,7 @@ export default class UI
 
   public playIntro (callback: () => void): void {
     this.intro.addEventListener('click', this.onStart.bind(this));
-    this.callback = setTimeout(callback, 5000);
+    this.callback = setTimeout(callback, 4500);
     this.intro.classList.add('start');
   }
 

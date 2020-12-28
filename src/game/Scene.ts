@@ -22,7 +22,6 @@ export default class extends Scene
   private playerRotation?: Tweens.Tween;
   private camera!: CameraManager;
 
-  private minDuration = 1500;
   private gamePaused = true;
   private gameOver = false;
 
@@ -60,10 +59,10 @@ export default class extends Scene
     this.physics.add.collider(this.player, this.ground as Physics.Arcade.StaticGroup);
 
     this.createCamera();
-    this.onResize(this.scale);
+    this.resize(this.scale);
     this.createEventListeners();
 
-    this.scale.on('resize', this.onResize, this);
+    this.scale.on('resize', this.resize, this);
     this.ui.playIntro(() => this.camera.scrollToStart());
   }
 
@@ -71,7 +70,7 @@ export default class extends Scene
     document.removeEventListener('game:start', this.start.bind(this));
     this.camera.follow(this.player, this.center.y - 182);
 
-    this.createNextPlatform(3);
+    this.createNextPlatform();
     this.gamePaused = false;
   }
 
@@ -104,12 +103,15 @@ export default class extends Scene
     document.addEventListener('game:start', this.start.bind(this));
   }
 
-  private createNextPlatform (bricks: number): void {
-    const width = 64 * bricks;
-    const p = this.platforms.length;
+  private createNextPlatform (): void {
+    const duration = this.score > 29 ? 1000 : this.score > 14 ? 1500 : 2000;
+    const bricks = this.score > 24 ? 1 : this.score > 9 ? 2 : 3;
 
-    const y = this.scale.height - 160 - this.score * 64;
+    const p = this.platforms.length;
+    const width = 64 * bricks;
+
     const x = this.leftPlatform ? 32 - width : this.scale.width + 32;
+    const y = this.scale.height - 160 - this.score * 64;
 
     this.platforms.push(this.physics.add.staticGroup({
       setXY: { x, y, stepX: 64 },
@@ -125,7 +127,7 @@ export default class extends Scene
       props: { x: `${this.leftPlatform ? '+' : '-'}= ${this.center.x + width / 2}` },
       onUpdate: (tween, brick) => brick.refreshBody(),
 
-      duration: randomInt(this.minDuration, 2500),
+      duration: randomInt(duration, duration + 500),
       targets: this.platforms[p].getChildren(),
 
       delay: randomInt(0, 1000),
@@ -159,16 +161,9 @@ export default class extends Scene
       })
     );
 
-    const bricks = this.score > 24
-      ? 1 : this.score > 9 ? 2 : 3;
-
-    this.minDuration = this.score > 29
-      ? 1000 : this.score > 14
-      ? 1500 : 2000;
-
     this.camera.zoomIn(this.score);
     this.platformAnimation?.stop();
-    this.createNextPlatform(bricks);
+    this.createNextPlatform();
   }
 
   private onGameOver (): void {
@@ -187,7 +182,7 @@ export default class extends Scene
     this.input.off('pointerdown');
   }
 
-  private onResize (size: Scale.ScaleManager): void {
+  private resize (size: Scale.ScaleManager): void {
     const { width, height } = size;
 
     this.visibleStars = height * 3.75;
@@ -206,6 +201,7 @@ export default class extends Scene
   }
 
   private setSky (width: number, height: number): void {
+    const displayWidth = height / 9 * 16;
     const midLevel = CONFIG.levels / 2;
 
     this.sky.displayWidth = width;
@@ -214,8 +210,6 @@ export default class extends Scene
     this.sky.setPosition(
       this.center.x, this.sky.displayHeight / -midLevel
     );
-
-    const displayWidth = height / 9 * 16;
 
     if (displayWidth < width) {
       this.stars.displayHeight = width / 16 * 9;
@@ -263,12 +257,7 @@ export default class extends Scene
     for (let p = this.platforms.length; p--;) {
       const platform = this.platforms[p];
       const { x, y } = platform.getChildren()[0] as GameObjects.Image;
-
-      platform.setXY(
-        width / 2 - this.center.x + x,
-        height - 160 - (this.center.y * 2 - y - 160),
-        64
-      ).refresh();
+      platform.setXY(width / 2 - this.center.x + x, height - 160 - (this.center.y * 2 - y - 160), 64).refresh();
     }
   }
 };

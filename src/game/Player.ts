@@ -3,7 +3,6 @@ import type { Scene } from 'phaser';
 
 export default class Player extends Physics.Arcade.Sprite
 {
-  private position: Math.Vector2;
   private offsetTime?: number;
   private size: Math.Vector2;
 
@@ -15,10 +14,6 @@ export default class Player extends Physics.Arcade.Sprite
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
-
-    this.position = new Math.Vector2(
-      scene.scale.width / 2, scene.scale.height - 182
-    );
 
     this.size = new Math.Vector2(
       scene.scale.width, scene.scale.height
@@ -43,13 +38,11 @@ export default class Player extends Physics.Arcade.Sprite
   }
 
   public resize (width: number, height: number): void {
-    const x = (this.body.position.x + 35) * width / this.size.x;
-    const y = (this.body.position.y - 54) * height / this.size.y;
+    const x = this.body.x * (width - 70) / (this.size.x - 70) + 35;
+    const y = this.body.y * (height - 236) / (this.size.y - 236) + 54;
 
-    this.size.set(width, height);
     this.body.position.set(x, y);
-
-    this.position.set(x, y);
+    this.size.set(width, height);
     this.setPosition(x, y);
   }
 
@@ -75,7 +68,9 @@ export default class Player extends Physics.Arcade.Sprite
   }
 
   public reset (): void {
-    const { x, y } = this.position;
+    const x = this.size.x / 2;
+    const y = this.size.y - 182;
+
     this.setCollideWorldBounds(false);
     clearTimeout(this.offsetTime);
 
