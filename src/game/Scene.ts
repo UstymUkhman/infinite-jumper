@@ -1,5 +1,5 @@
 import { Scene, Physics, GameObjects, Scale, Tweens } from 'phaser';
-import { randomInt, randomEasing } from '@Game/utils';
+import { randomInt, randomEasing, clamp } from '@Game/utils';
 
 import CameraManager from '@Game/Camera';
 import CONFIG from '@Game/config.json';
@@ -12,12 +12,15 @@ export default class extends Scene
   private clouds!: GameObjects.Group;
 
   private platforms: Array<Physics.Arcade.StaticGroup> = [];
+  private visibleStars = window.innerHeight * 3.75;
+
   private ground?: Physics.Arcade.StaticGroup;
   private leftPlatform = Math.random() < 0.5;
+
   private platformAnimation?: Tweens.Tween;
   private playerRotation?: Tweens.Tween;
-
   private camera!: CameraManager;
+
   private minDuration = 1500;
   private gamePaused = true;
   private autoplay = false;
@@ -60,12 +63,30 @@ export default class extends Scene
 
     this.createCamera();
     this.createInputEvents();
-    this.createNextPlatform(3);
+    setTimeout(this.start.bind(this), 500);
+  }
+
+  private start (): void {
+    this.camera.scrollTo(this.center.y - 182, () =>
+      this.camera.follow(this.player)
+    );
+
+    // this.createNextPlatform(3);
+  }
+
+  public update (): void {
+    const starsArea = this.sky.displayHeight - this.visibleStars;
+
+    this.stars.setAlpha((
+      clamp(
+        this.camera.y, this.visibleStars, this.sky.displayHeight
+      ) - this.visibleStars
+    ) / starsArea);
   }
 
   private createEnvironment (): void {
     this.sky = this.add.image(0, 0, 'sky').setScrollFactor(0, 1);
-    this.stars = this.add.image(0, 0, 'stars').setScrollFactor(0).setAlpha(0);
+    this.stars = this.add.image(0, 0, 'stars').setScrollFactor(0).setAlpha(1);
 
     this.clouds = this.add.group(CONFIG.clouds.map(([x, y, scroll]) =>
       this.add.image(x, y, 'cloud').setScrollFactor(0, scroll)
@@ -74,7 +95,7 @@ export default class extends Scene
 
   private createCamera (): void {
     this.camera = new CameraManager(this.cameras.main);
-    this.camera.follow(this.player, this.center.y - 182);
+    this.camera.y = this.cameras.main.centerY * CONFIG.levels * 2;
   }
 
   private createInputEvents (): void {
@@ -167,6 +188,7 @@ export default class extends Scene
   private onResize (size: Scale.ScaleManager): void {
     const { width, height } = size;
 
+    this.visibleStars = height * 3.75;
     this.cameras.resize(width, height);
     this.setPlatformsPosition(width, height);
 
