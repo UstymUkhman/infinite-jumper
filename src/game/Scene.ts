@@ -4,6 +4,7 @@ import { randomInt, randomEasing, clamp } from '@Game/utils';
 import CameraManager from '@Game/Camera';
 import CONFIG from '@Game/config.json';
 import Player from '@Game/Player';
+import UI from '@Game/UI';
 
 export default class extends Scene
 {
@@ -23,10 +24,10 @@ export default class extends Scene
 
   private minDuration = 1500;
   private gamePaused = true;
-  private autoplay = false;
-
   private gameOver = false;
+
   private player!: Player;
+  private ui = new UI();
   private score = 0;
 
   private center = {
@@ -58,30 +59,30 @@ export default class extends Scene
     this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
     this.physics.add.collider(this.player, this.ground as Physics.Arcade.StaticGroup);
 
-    this.scale.on('resize', this.onResize, this);
-    this.onResize(this.scale);
-
     this.createCamera();
-    this.createInputEvents();
-    setTimeout(this.start.bind(this), 500);
+    this.onResize(this.scale);
+    this.createEventListeners();
+
+    this.scale.on('resize', this.onResize, this);
+    this.ui.playIntro(() => this.camera.scrollToStart());
   }
 
   private start (): void {
-    this.camera.scrollTo(this.center.y - 182, () =>
-      this.camera.follow(this.player)
-    );
+    document.removeEventListener('game:start', this.start.bind(this));
+    this.camera.follow(this.player, this.center.y - 182);
 
-    // this.createNextPlatform(3);
+    this.createNextPlatform(3);
+    this.gamePaused = false;
   }
 
   public update (): void {
     const starsArea = this.sky.displayHeight - this.visibleStars;
 
-    this.stars.setAlpha((
-      clamp(
-        this.camera.y, this.visibleStars, this.sky.displayHeight
-      ) - this.visibleStars
-    ) / starsArea);
+    const scrollArea = clamp(
+      this.camera.y, this.visibleStars, this.sky.displayHeight
+    ) - this.visibleStars;
+
+    this.stars.setAlpha(scrollArea / starsArea);
   }
 
   private createEnvironment (): void {
@@ -98,8 +99,9 @@ export default class extends Scene
     this.camera.y = this.cameras.main.centerY * CONFIG.levels * 2;
   }
 
-  private createInputEvents (): void {
+  private createEventListeners (): void {
     this.input.on('pointerdown', this.player.jump.bind(this.player));
+    document.addEventListener('game:start', this.start.bind(this));
   }
 
   private createNextPlatform (bricks: number): void {
@@ -151,7 +153,7 @@ export default class extends Scene
     this.leftPlatform = Math.random() < 0.5;
     this.player.lookLeft = this.leftPlatform;
 
-    !this.autoplay && document.dispatchEvent(
+    /* !this.autoplay && */ document.dispatchEvent(
       new CustomEvent('score:update', {
         detail: { score: ++this.score }
       })
@@ -192,8 +194,9 @@ export default class extends Scene
     this.cameras.resize(width, height);
     this.setPlatformsPosition(width, height);
 
-    this.center = { x: width / 2, y: height / 2 };
     this.physics.world.bounds.setSize(width, height);
+    this.center = { x: width / 2, y: height / 2 };
+    this.camera.resize(this.center.y - 182);
 
     this.setSky(width, height);
     this.setClouds(width);
@@ -212,8 +215,17 @@ export default class extends Scene
       this.center.x, this.sky.displayHeight / -midLevel
     );
 
-    this.stars.displayWidth = height / 9 * 16;
-    this.stars.displayHeight = height;
+    const displayWidth = height / 9 * 16;
+
+    if (displayWidth < width) {
+      this.stars.displayHeight = width / 16 * 9;
+      this.stars.displayWidth = width;
+    }
+
+    else {
+      this.stars.displayWidth = displayWidth;
+      this.stars.displayHeight = height;
+    }
 
     this.stars.setPosition(
       this.center.x, this.stars.displayHeight / 2
@@ -221,10 +233,7 @@ export default class extends Scene
   }
 
   private setClouds (width: number): void {
-    const xs = width < 992 ? 5 : 7.5;
-    const ys = width < 992 ? 1 : 2.5;
-
-    const cloudWidth = width / xs;
+    const cloudWidth = width / (width < 992 ? 5 : 7.5);
     const cloudHeight = cloudWidth / 1.406;
 
     this.clouds.children.iterate((child: GameObjects.GameObject, index: number) => {
@@ -233,9 +242,9 @@ export default class extends Scene
       let { x, y } = this.center;
 
       x += x * offsetX;
-      y += y * offsetY * ys;
-      cloud.setPosition(x, y);
+      y += y * offsetY;
 
+      cloud.setPosition(x, y);
       cloud.displayWidth = cloudWidth;
       cloud.displayHeight = cloudHeight;
     });

@@ -2,20 +2,20 @@ import type Player from '@Game/Player';
 import type { Cameras } from 'phaser';
 import { clamp } from '@Game/utils';
 
-export default class CameraManager
-{
+export default class CameraManager {
   private initialPosition?: number;
+  private following = false;
 
   public constructor (private camera: Cameras.Scene2D.Camera) {}
 
-  public follow (target: Player): void {
-    this.camera.startFollow(target, false, 1, 0.1, 0, this.initialPosition);
+  public scrollToStart (): void {
+    this.camera.pan(this.camera.centerX, this.camera.centerY, 2500, 'Quad.easeOut');
   }
 
-  public scrollTo (y: number, callback?: () => void): void {
-    this.camera.pan(this.camera.centerX, this.camera.centerY, 2500, 'Quad.easeOut');
-    callback && setTimeout(callback, 2500);
+  public follow (target: Player, y = this.initialPosition): void {
+    this.camera.startFollow(target, false, 1, 0.1, 0, y);
     this.initialPosition = y;
+    this.following = true;
   }
 
   public zoomIn (amount: number): void {
@@ -27,6 +27,7 @@ export default class CameraManager
   public zoomOut (duration: number): void {
     duration = clamp(duration, 500, 3500);
 
+    this.following = false;
     this.camera.stopFollow();
     this.camera.zoomTo(1, duration);
 
@@ -34,6 +35,13 @@ export default class CameraManager
       this.camera.centerX, this.camera.centerY,
       duration, 'Quad.easeOut'
     );
+  }
+
+  public resize (offset: number): void {
+    if (this.following) {
+      this.initialPosition = offset;
+      this.camera.setFollowOffset(0, offset);
+    }
   }
 
   public set y (y: number) {

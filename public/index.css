@@ -1,3 +1,9 @@
+:root {
+  --easeInOutQuad: cubic-bezier(0.455, 0.030, 0.515, 0.955);
+  --easeOutQuad: cubic-bezier(0.250, 0.460, 0.450, 0.940);
+  --easeInQuad: cubic-bezier(0.550, 0.085, 0.680, 0.530);
+}
+
 html, body {
   -webkit-text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
@@ -17,6 +23,7 @@ html, body {
   font-kerning: none;
   font-style: normal;
   user-select: none;
+
   font-weight: 400;
   appearance: none;
   overflow: hidden;
@@ -60,26 +67,30 @@ h1, h2, h3, h4, h5, h6, p, span {
   margin: 0;
 }
 
-.start {
-  background-color: rgba(7, 11, 52, 0.75);
+#intro {
+  transition: background-color 1.5s var(--easeOutQuad) 3s;
+  background-color: rgba(0, 0, 0, 1);
 }
 
-.start h1 {
+#intro h1 {
+  animation: title 2s var(--easeInQuad) 1s;
   transform: translateY(-50%);
   position: absolute;
-
+  
   line-height: 6vw;
   font-size: 6vw;
-
+  
   height: 6vw;
   width: 100%;
+  opacity: 0;
 
   top: 50%;
   left: 0;
 }
 
-.start h3 {
-  transform: translateY(-33%);
+#intro h3 {
+  transition: opacity 1s var(--easeInOutQuad) 3.5s;
+  transform: translateY(-25%);
   position: absolute;
 
   line-height: 4vw;
@@ -87,13 +98,15 @@ h1, h2, h3, h4, h5, h6, p, span {
 
   height: 4vw;
   width: 100%;
+  opacity: 0;
 
-  top: 33%;
+  top: 25%;
   left: 0;
 }
 
-.start span {
-  transform: translateY(-67%);
+#intro span {
+  transition: opacity 1s var(--easeInOutQuad) 8s;
+  transform: translateY(-33%);
   position: absolute;
 
   line-height: 16px;
@@ -101,15 +114,37 @@ h1, h2, h3, h4, h5, h6, p, span {
 
   height: 16px;
   width: 100%;
+  opacity: 0;
 
-  top: 67%;
+  top: 33%;
   left: 0;
 }
 
+#intro.start {
+  background-color: rgba(7, 11, 52, 0.25);
+}
+
+#intro.start.fadeOut {
+  pointer-events: none;
+  opacity: 0;
+}
+
+#intro.start h3,
+#intro.start span {
+  opacity: 1;
+}
+
 @media only screen and (max-width: 767px) {
-  .start span {  
+  #intro span {  
     line-height: 10px;
     font-size: 10px;
     height: 10px;
   }
+}
+
+@keyframes title {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
 }
