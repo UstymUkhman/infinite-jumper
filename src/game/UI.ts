@@ -6,15 +6,27 @@ export default class UI
   private end = document.getElementById('end')!;
   private ui = document.getElementById('ui')!;
 
+  private start: () => void;
+  private update: (event: CustomEventInit) => void;
+  private restart: () => void;
+
   private callback?: number;
+  private startEvent: CustomEvent;
+  private restartEvent: CustomEvent;
 
   public constructor () {
-    document.addEventListener('score:update', this.onUpdate.bind(this));
+    this.start = this.onStart.bind(this);
+    this.update = this.onUpdate.bind(this);
+    this.restart = this.onRestart.bind(this);
+
+    this.startEvent = new CustomEvent('game:start');
+    this.restartEvent = new CustomEvent('game:restart');
+    document.addEventListener('score:update', this.update);
   }
 
   private onStart (): void {
-    this.intro.removeEventListener('click', this.onStart.bind(this));
-    document.dispatchEvent(new CustomEvent('game:start'));
+    this.intro.removeEventListener('click', this.start);
+    document.dispatchEvent(this.startEvent);
 
     this.intro.classList.add('fadeOut');
     this.ui.classList.add('fadeIn');
@@ -26,8 +38,8 @@ export default class UI
   }
 
   private onRestart (): void {
-    this.end.removeEventListener('click', this.onRestart.bind(this));
-    document.dispatchEvent(new CustomEvent('game:restart'));
+    this.end.removeEventListener('click', this.restart);
+    document.dispatchEvent(this.restartEvent);
 
     this.end.classList.remove('fadeIn');
     this.ui.classList.add('fadeIn');
@@ -35,13 +47,13 @@ export default class UI
   }
 
   public playIntro (callback: () => void): void {
-    this.intro.addEventListener('click', this.onStart.bind(this));
+    this.intro.addEventListener('click', this.start);
     this.callback = setTimeout(callback, 4500);
     this.intro.classList.add('start');
   }
 
   public showGameOver (): void {
-    this.end.addEventListener('click', this.onRestart.bind(this));
+    this.end.addEventListener('click', this.restart);
     this.ui.classList.remove('fadeIn');
     this.end.classList.add('fadeIn');
   }

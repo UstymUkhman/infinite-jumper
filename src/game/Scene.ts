@@ -62,7 +62,6 @@ export default class extends Scene
     this.resize(this.scale);
     this.createEventListeners();
 
-    this.scale.on('resize', this.resize, this);
     this.ui.playIntro(this.camera.scrollToStart.bind(this.camera));
   }
 
@@ -116,7 +115,9 @@ export default class extends Scene
   private createEventListeners (): void {
     document.addEventListener('game:restart', this.restart.bind(this));
     this.input.on('pointerdown', this.player.jump.bind(this.player));
+
     document.addEventListener('game:start', this.start.bind(this));
+    this.scale.on('resize', this.resize, this);
   }
 
   private createNextPlatform (): void {

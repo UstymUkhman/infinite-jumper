@@ -90,7 +90,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   left: 0;
 }
 
-#intro h3 {
+#intro h2 {
   transition: opacity 1s var(--easeInOutQuad) 3.5s;
   transform: translateY(-25%);
   position: absolute;
@@ -131,7 +131,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 0;
 }
 
-#intro.start h3,
+#intro.start h2,
 #intro.start span {
   opacity: 1;
 }
@@ -172,7 +172,7 @@ h1, h2, h3, h4, h5, h6, p, span {
 
 #end h2 {
   transition: opacity 0.5s var(--easeInOutQuad) 1s;
-  transform: translateY(-45%);
+  transform: translateY(-40%);
   position: absolute;
 
   line-height: 5vw;
@@ -182,13 +182,13 @@ h1, h2, h3, h4, h5, h6, p, span {
   width: 100%;
   opacity: 0;
 
-  top: 45%;
+  top: 40%;
   left: 0;
 }
 
 #end span {
   transition: opacity 0.5s var(--easeInOutQuad) 1.5s;
-  transform: translateY(-55%);
+  transform: translateY(-60%);
   position: absolute;
 
   line-height: 2vw;
@@ -198,7 +198,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   width: 100%;
   opacity: 0;
 
-  top: 55%;
+  top: 60%;
   left: 0;
 }
 
@@ -212,6 +212,16 @@ h1, h2, h3, h4, h5, h6, p, span {
     line-height: 4vw;
     font-size: 4vw;
     height: 4vw;
+  }
+
+  #end h2 {
+    transform: translateY(-45%);
+    top: 45%;
+  }
+
+  #end span {
+    transform: translateY(-55%);
+    top: 55%;
   }
 }
 
