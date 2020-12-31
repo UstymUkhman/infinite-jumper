@@ -1,7 +1,9 @@
 :root {
-  --easeInOutQuad: cubic-bezier(0.455, 0.030, 0.515, 0.955);
-  --easeOutQuad: cubic-bezier(0.250, 0.460, 0.450, 0.940);
+  --overlayBackground: rgba(7, 11, 52, 0.25);
+
   --easeInQuad: cubic-bezier(0.550, 0.085, 0.680, 0.530);
+  --easeOutQuad: cubic-bezier(0.250, 0.460, 0.450, 0.940);
+  --easeInOutQuad: cubic-bezier(0.455, 0.030, 0.515, 0.955);
 }
 
 html, body {
@@ -121,7 +123,7 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 #intro.start {
-  background-color: rgba(7, 11, 52, 0.25);
+  background-color: var(--overlayBackground);
 }
 
 #intro.start.fadeOut {
@@ -134,8 +136,99 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 1;
 }
 
+#ui {
+  transition: opacity 0.5s;
+  pointer-events: none;
+  opacity: 0;
+}
+
+#ui.fadeIn {
+  opacity: 1;
+}
+
+#ui #score {
+  position: absolute;
+  line-height: 3vw;
+  font-size: 3vw;
+
+  height: 3vw;
+  width: 100%;
+
+  top: 2.5vh;
+  left: 0;
+}
+
+#end {
+  background-color: var(--overlayBackground);
+  pointer-events: none;
+  opacity: 0;
+}
+
+#end.fadeIn {
+  transition: opacity 0.5s var(--easeOutQuad) 0.5s;
+  pointer-events: all;
+  opacity: 1;
+}
+
+#end h2 {
+  transition: opacity 0.5s var(--easeInOutQuad) 1s;
+  transform: translateY(-45%);
+  position: absolute;
+
+  line-height: 5vw;
+  font-size: 5vw;
+
+  height: 5vw;
+  width: 100%;
+  opacity: 0;
+
+  top: 45%;
+  left: 0;
+}
+
+#end span {
+  transition: opacity 0.5s var(--easeInOutQuad) 1.5s;
+  transform: translateY(-55%);
+  position: absolute;
+
+  line-height: 2vw;
+  font-size: 2vw;
+
+  height: 2vw;
+  width: 100%;
+  opacity: 0;
+
+  top: 55%;
+  left: 0;
+}
+
+#end.fadeIn h2,
+#end.fadeIn span {
+  opacity: 1;
+}
+
+@media only screen and (max-width: 991px) {
+  #ui #score {  
+    line-height: 4vw;
+    font-size: 4vw;
+    height: 4vw;
+  }
+}
+
 @media only screen and (max-width: 767px) {
   #intro span {  
+    line-height: 12px;
+    font-size: 12px;
+    height: 12px;
+  }
+
+  #ui #score {  
+    line-height: 6vw;
+    font-size: 6vw;
+    height: 6vw;
+  }
+
+  #end span {  
     line-height: 12px;
     font-size: 12px;
     height: 12px;

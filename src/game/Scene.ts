@@ -63,13 +63,11 @@ export default class extends Scene
     this.createEventListeners();
 
     this.scale.on('resize', this.resize, this);
-    this.ui.playIntro(() => this.camera.scrollToStart());
+    this.ui.playIntro(this.camera.scrollToStart.bind(this.camera));
   }
 
   private start (): void {
-    document.removeEventListener('game:start', this.start.bind(this));
     this.camera.follow(this.player, this.center.y - 182);
-
     this.createNextPlatform();
     this.gamePaused = false;
   }
@@ -82,6 +80,23 @@ export default class extends Scene
     ) - this.visibleStars;
 
     this.stars.setAlpha(scrollArea / starsArea);
+  }
+
+  private restart (): void {
+    for (let p = this.platforms.length; p--;) {
+      const platform = this.platforms[p];
+      platform.clear(true, true);
+    }
+
+    this.platformAnimation?.stop();
+    this.playerRotation?.stop();
+    this.resize(this.scale);
+
+    this.gameOver = false;
+    this.player.reset();
+
+    this.score = 0;
+    this.start();
   }
 
   private createEnvironment (): void {
@@ -99,6 +114,7 @@ export default class extends Scene
   }
 
   private createEventListeners (): void {
+    document.addEventListener('game:restart', this.restart.bind(this));
     this.input.on('pointerdown', this.player.jump.bind(this.player));
     document.addEventListener('game:start', this.start.bind(this));
   }
@@ -170,7 +186,8 @@ export default class extends Scene
     this.gameOver = true;
     this.gamePaused = true;
 
-    this.removeInputEvents();
+    this.ui.showGameOver();
+    // this.removeInputEvents();
     this.camera.zoomOut(this.score * 140);
 
     this.playerRotation = this.add.tween(
@@ -178,9 +195,9 @@ export default class extends Scene
     );
   }
 
-  private removeInputEvents (): void {
+  /* private removeInputEvents (): void {
     this.input.off('pointerdown');
-  }
+  } */
 
   private resize (size: Scale.ScaleManager): void {
     const { width, height } = size;
@@ -257,8 +274,14 @@ export default class extends Scene
   private setPlatformsPosition (width: number, height: number): void {
     for (let p = this.platforms.length; p--;) {
       const platform = this.platforms[p];
-      const { x, y } = platform.getChildren()[0] as GameObjects.Image;
-      platform.setXY(width / 2 - this.center.x + x, height - 160 - (this.center.y * 2 - y - 160), 64).refresh();
+      const bricks = platform.getChildren();
+
+      if (!bricks.length) continue;
+      const { x, y } = bricks[0] as GameObjects.Image;
+
+      platform.setXY(
+        width / 2 - this.center.x + x, height - 160 - (this.center.y * 2 - y - 160), 64
+      ).refresh();
     }
   }
 
