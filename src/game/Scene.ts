@@ -1,6 +1,6 @@
-import { Scene, Physics, GameObjects, Scale, Tweens } from 'phaser';
-import { randomInt, randomEasing, clamp } from '@Game/utils';
+import { Scene, Physics, GameObjects, Scale, Math, Tweens } from 'phaser';
 
+import { randomEasing } from '@Game/utils';
 import CameraManager from '@Game/Camera';
 import CONFIG from '@Game/config.json';
 import Player from '@Game/Player';
@@ -15,8 +15,8 @@ export default class extends Scene
   private platforms: Array<Physics.Arcade.StaticGroup> = [];
   private visibleStars = window.innerHeight * 3.75;
 
+  private leftPlatform = Math.Between(0, 1) < 1;
   private ground?: Physics.Arcade.StaticGroup;
-  private leftPlatform = Math.random() < 0.5;
 
   private platformAnimation?: Tweens.Tween;
   private playerRotation?: Tweens.Tween;
@@ -77,7 +77,7 @@ export default class extends Scene
   public update (): void {
     const starsArea = this.sky.displayHeight - this.visibleStars;
 
-    const scrollArea = clamp(
+    const scrollArea = Math.Clamp(
       this.camera.y, this.visibleStars, this.sky.displayHeight
     ) - this.visibleStars;
 
@@ -125,12 +125,12 @@ export default class extends Scene
 
     this.platformAnimation = this.add.tween({
       props: { x: `${this.leftPlatform ? '+' : '-'}= ${this.center.x + width / 2}` },
-      onUpdate: (tween, brick) => brick.refreshBody(),
+      duration: Math.Between(duration, duration + 500),
 
-      duration: randomInt(duration, duration + 500),
+      onUpdate: (tween, brick) => brick.refreshBody(),
       targets: this.platforms[p].getChildren(),
 
-      delay: randomInt(0, 1000),
+      delay: Math.Between(0, 1000),
       ease: randomEasing()
     });
   }
@@ -152,7 +152,7 @@ export default class extends Scene
   }
 
   private onPlatformLanding (): void {
-    this.leftPlatform = Math.random() < 0.5;
+    this.leftPlatform = Math.Between(0, 1) < 1;
     this.player.lookLeft = this.leftPlatform;
 
     /* !this.autoplay && */ document.dispatchEvent(
@@ -196,8 +196,9 @@ export default class extends Scene
     this.setSky(width, height);
     this.setClouds(width);
 
+    this.resetNextPlatform();
     this.setGround(width, height);
-    this.player.resize(width, height);
+    this.player.resize(width, height, this.score);
   }
 
   private setSky (width: number, height: number): void {
@@ -245,7 +246,7 @@ export default class extends Scene
   }
 
   private setGround (width: number, height: number): void {
-    const bricks = Math.ceil(width / 64);
+    const bricks = Math.CeilTo(width / 64);
     this.ground?.clear(true, true);
 
     for (let r = 2; r--;)
@@ -258,6 +259,16 @@ export default class extends Scene
       const platform = this.platforms[p];
       const { x, y } = platform.getChildren()[0] as GameObjects.Image;
       platform.setXY(width / 2 - this.center.x + x, height - 160 - (this.center.y * 2 - y - 160), 64).refresh();
+    }
+  }
+
+  private resetNextPlatform (): void {
+    if (this.platformAnimation && this.platformAnimation.isPlaying()) {
+      this.platforms[this.platforms.length - 1].clear(true, true);
+      this.platforms = this.platforms.slice(0, -1);
+
+      this.platformAnimation.stop();
+      !this.gameOver && this.createNextPlatform();
     }
   }
 };

@@ -3,6 +3,7 @@ import type { Scene } from 'phaser';
 
 export default class Player extends Physics.Arcade.Sprite
 {
+  private position: Math.Vector2;
   private offsetTime?: number;
   private size: Math.Vector2;
 
@@ -15,9 +16,8 @@ export default class Player extends Physics.Arcade.Sprite
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.size = new Math.Vector2(
-      scene.scale.width, scene.scale.height
-    );
+    this.position = new Math.Vector2(this.x, this.y);
+    this.size = new Math.Vector2(scene.scale.width, scene.scale.height);
 
     scene.anims.create({
       frames: scene.anims.generateFrameNumbers('mario', {
@@ -29,21 +29,29 @@ export default class Player extends Physics.Arcade.Sprite
     });
   }
 
+  private updateCurrentPosition (width: number, height: number, platforms: number): void {
+    const mh = 182 + 64 * ++platforms;
+    const freeHeight = height - mh;
+
+    const sx = this.size.x - 70;
+    const sy = this.size.y - mh;
+
+    let { x, y } = this.body;
+    x *= (width - 70) / sx;
+    y *= freeHeight / sy;
+
+    this.position.set(
+      Math.Clamp(x + 35, 0, width - 35),
+      Math.Clamp(y, 128, freeHeight)
+    );
+  }
+
   public jump (): void {
     if (this.alive && this.body.touching.down) {
       this.setVelocityY(-500.0);
       this.anims.play('jump');
       this.jumping = true;
     }
-  }
-
-  public resize (width: number, height: number): void {
-    const x = this.body.x * (width - 70) / (this.size.x - 70) + 35;
-    const y = this.body.y * (height - 236) / (this.size.y - 236) + 54;
-
-    this.body.position.set(x, y);
-    this.size.set(width, height);
-    this.setPosition(x, y);
   }
 
   public die (fromLeft: boolean) {
@@ -65,6 +73,14 @@ export default class Player extends Physics.Arcade.Sprite
       duration: 500,
       targets: this
     };
+  }
+
+  public resize (width: number, height: number, platforms: number): void {
+    this.updateCurrentPosition(width, height, platforms);
+    this.setPosition(this.position.x, this.position.y);
+
+    this.body.position.copy(this.position);
+    this.size.set(width, height);
   }
 
   public reset (): void {

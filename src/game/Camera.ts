@@ -1,6 +1,6 @@
+import { Math as MathUtil } from 'phaser';
 import type Player from '@Game/Player';
 import type { Cameras } from 'phaser';
-import { clamp } from '@Game/utils';
 
 export default class CameraManager {
   private initialPosition?: number;
@@ -25,7 +25,7 @@ export default class CameraManager {
   }
 
   public zoomOut (duration: number): void {
-    duration = clamp(duration, 500, 3500);
+    duration = MathUtil.Clamp(duration, 500, 3500);
 
     this.following = false;
     this.camera.stopFollow();

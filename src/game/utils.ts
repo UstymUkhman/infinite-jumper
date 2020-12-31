@@ -1,8 +1,6 @@
 import { Math as MathUtils } from 'phaser';
 
-type Easing = (v: number, overshoot?: number) => number;
-
-const EASINGS: Array<Easing> = [
+const EASINGS = [
   MathUtils.Easing.Linear,
 
   MathUtils.Easing.Quadratic.In,
@@ -38,11 +36,4 @@ const EASINGS: Array<Easing> = [
   MathUtils.Easing.Back.InOut
 ];
 
-export const clamp = (value: number, min = 0, max = 1): number =>
-  Math.max(min, Math.min(value, max));
-
-export const randomInt = (min: number, max: number): number =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
-
-export const randomEasing = (): Easing =>
-  EASINGS[randomInt(0, EASINGS.length - 1)];
+export const randomEasing = () => EASINGS[MathUtils.Between(0, EASINGS.length - 1)];
