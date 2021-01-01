@@ -1,7 +1,7 @@
 {
   "name": "Infinite Jumper",
   "short_name": "Infinite Jumper",
-  "start_url": "/?home=true",
+  "start_url": "https://ustymukhman.github.io/infinite-jumper/public/?home=true",
   "orientation": "portrait",
   "display": "fullscreen",
   "scope": "/",
