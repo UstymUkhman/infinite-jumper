@@ -1,9 +1,10 @@
 {
   "name": "Infinite Jumper",
   "short_name": "Infinite Jumper",
+  "start_url": "/?home=true",
   "orientation": "portrait",
-  "display": "standalone",
-  "start_url": "/",
+  "display": "fullscreen",
+  "scope": "/",
   "icons": [{
     "src": ".\/favicon\/android-icon-36x36.png",
     "purpose": "any maskable",

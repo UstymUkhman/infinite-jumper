@@ -3,6 +3,7 @@ const webpack = require('webpack');
 
 const build = require('yargs').argv.env === 'build';
 process.env.NODE_ENV = build ? 'production' : 'development';
+const { InjectManifest } = require('workbox-webpack-plugin');
 
 module.exports = {
   devtool: build ? false : 'inline-source-map',
@@ -32,6 +33,11 @@ module.exports = {
       'typeof CANVAS_RENDERER': JSON.stringify(true),
       'typeof WEBGL_RENDERER': JSON.stringify(true),
       PRODUCTION: JSON.stringify(build)
+    }),
+
+    new InjectManifest({
+      swDest: path.resolve('./public/worker.js'),
+      swSrc: path.resolve('./src/worker.ts')
     })
   ],
 
