@@ -41,7 +41,9 @@ export default class UI
     this.end.removeEventListener('click', this.restart);
     document.dispatchEvent(this.restartEvent);
 
+    this.end.classList.remove('interactable');
     this.end.classList.remove('fadeIn');
+
     this.ui.classList.add('fadeIn');
     this.score.textContent = '0';
   }
@@ -53,7 +55,9 @@ export default class UI
   }
 
   public showGameOver (): void {
+    setTimeout(() => this.end.classList.add('interactable'), 1500);
     this.end.addEventListener('click', this.restart);
+
     this.ui.classList.remove('fadeIn');
     this.end.classList.add('fadeIn');
   }

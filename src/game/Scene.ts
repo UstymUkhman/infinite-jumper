@@ -72,6 +72,8 @@ export default class extends Scene
   }
 
   public update (): void {
+    if (this.gameOver) return;
+
     const starsArea = this.sky.displayHeight - this.visibleStars;
 
     const scrollArea = Math.Clamp(
@@ -188,17 +190,12 @@ export default class extends Scene
     this.gamePaused = true;
 
     this.ui.showGameOver();
-    // this.removeInputEvents();
     this.camera.zoomOut(this.score * 140);
 
     this.playerRotation = this.add.tween(
       this.player.die(this.leftPlatform)
     );
   }
-
-  /* private removeInputEvents (): void {
-    this.input.off('pointerdown');
-  } */
 
   private resize (size: Scale.ScaleManager): void {
     const { width, height } = size;
