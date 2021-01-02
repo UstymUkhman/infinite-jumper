@@ -1,8 +1,14 @@
+type SoundFade = {
+  fadeIn: (scene: Scene, sound: Sound.BaseSound, duration: number, endVolume?: number, startVolume?: number) => void
+  fadeOut: (scene: Scene, sound: Sound.BaseSound, duration: number, destroy?: boolean) => void
+};
+
 import type { Physics, GameObjects, Sound, Scale, Tweens } from 'phaser';
+
 import { randomEasing } from '@Game/utils';
 import CameraManager from '@Game/Camera';
-
 import CONFIG from '@Game/config.json';
+
 import { Scene, Math } from 'phaser';
 import Player from '@Game/Player';
 import UI from '@Game/UI';
@@ -21,8 +27,10 @@ export default class extends Scene
 
   private platformAnimation?: Tweens.Tween;
   private playerRotation?: Tweens.Tween;
+
   private landing!: Sound.BaseSound;
   private camera!: CameraManager;
+  private music!: SoundFade;
 
   private gamePaused = true;
   private gameOver = false;
@@ -46,6 +54,10 @@ export default class extends Scene
     this.load.image('cloud', 'assets/image/cloud.png');
     this.load.image('brick', 'assets/image/brick.png');
 
+    this.load.audio('VanHalen', 'assets/audio/Jump.mp3');
+    this.load.audio('Queen', 'assets/audio/DontStopMeNow.mp3');
+    this.load.audio('HouseOfPain', 'assets/audio/JumpAround.mp3');
+
     this.load.audio('landing', 'assets/audio/landing.wav');
     this.load.audio('jump', 'assets/audio/jump.wav');
     this.load.audio('die', 'assets/audio/die.wav');
@@ -68,10 +80,10 @@ export default class extends Scene
 
     this.createCamera();
     this.resize(this.scale);
+    this.createMusicManager();
 
     this.createSoundEffects();
     this.createEventListeners();
-
     this.ui.playIntro(this.camera.scrollToStart.bind(this.camera));
   }
 
@@ -122,6 +134,19 @@ export default class extends Scene
   private createCamera (): void {
     this.camera = new CameraManager(this.cameras.main);
     this.camera.y = this.cameras.main.centerY * CONFIG.levels * 2;
+  }
+
+  private createMusicManager (): void {
+    this.music = this.plugins.get('rexSoundFade') as unknown as SoundFade;
+
+    const vanHalen = this.sound.add('VanHalen');
+    this.music.fadeIn(this, vanHalen, 1000, 0.75);
+
+    // this.music.fadeOut(this, vanHalen, 1000);
+
+    // this.music.on('destroy', () => {
+    //     this.music = undefined;
+    // }, this);
   }
 
   private createSoundEffects (): void {

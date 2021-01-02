@@ -8,5 +8,5 @@ declare module '*.json' {
 }
 
 declare module 'phaser/types';
-
 declare const PRODUCTION: boolean;
+declare module 'phaser3-rex-plugins/*';

@@ -22,6 +22,12 @@
 
 ## Credits ##
 
-*Music:* 
+#### Music: ####
 
-*Sound Effects:* https://themushroomkingdom.net/media/smb/wav
+&emsp;**Van Halen** - *Jump*<br />
+&emsp;**Queen** - *Don't Stop Me Now*<br />
+&emsp;**House Of Pain** - *Jump Around*<br />
+
+#### Sound Effects: ####
+
+&emsp;*[The Mushroom Kingdom](https://themushroomkingdom.net/media/smb/wav)*

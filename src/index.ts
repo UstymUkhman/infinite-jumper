@@ -1,5 +1,6 @@
-import { Game, Scale } from 'phaser';
 import Scene from '@Game/Scene';
+import { Game, Scale } from 'phaser';
+import SoundFadePlugin from 'phaser3-rex-plugins/plugins/soundfade-plugin';
 
 export const game = new Game({
   audio: { disableWebAudio: true },
@@ -8,6 +9,14 @@ export const game = new Game({
 
   type: Phaser.AUTO,
   scene: Scene,
+
+  plugins: {
+    global: [{
+      plugin: SoundFadePlugin,
+      key: 'rexSoundFade',
+      start: true
+    }]
+  },
 
   physics: {
     default: 'arcade',
