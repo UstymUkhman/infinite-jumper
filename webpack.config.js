@@ -36,6 +36,7 @@ module.exports = {
     }),
 
     new InjectManifest({
+      maximumFileSizeToCacheInBytes: 20 * 1024 * 1024,
       swDest: path.resolve('./public/worker.js'),
       swSrc: path.resolve('./src/worker.ts')
     })

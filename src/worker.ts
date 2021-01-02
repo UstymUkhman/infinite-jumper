@@ -1,10 +1,13 @@
-import { CacheFirst } from 'workbox-strategies';
 import { registerRoute } from 'workbox-routing';
-
 import { precacheAndRoute } from 'workbox-precaching';
-declare var self: WorkerGlobalScope & typeof globalThis;
+import { StaleWhileRevalidate, CacheFirst } from 'workbox-strategies';
 
+// @ts-ignore
 precacheAndRoute(self.__WB_MANIFEST);
+
+registerRoute(/\/$/, new StaleWhileRevalidate({
+  cacheName: 'infiniteJumper'
+}), 'GET');
 
 registerRoute(({ request }) =>
   request.destination === 'image',
