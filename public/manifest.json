@@ -3,7 +3,7 @@
   "short_name": "Infinite Jumper",
   "orientation": "portrait",
   "display": "fullscreen",
-  "start_url": "/",
+  "start_url": "./",
   "scope": "/",
   "icons": [{
     "src": ".\/favicon\/android-icon-36x36.png",
