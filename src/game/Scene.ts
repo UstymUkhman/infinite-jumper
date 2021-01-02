@@ -1,8 +1,9 @@
-import { Scene, Physics, GameObjects, Scale, Math, Tweens } from 'phaser';
-
+import type { Physics, GameObjects, Sound, Scale, Tweens } from 'phaser';
 import { randomEasing } from '@Game/utils';
 import CameraManager from '@Game/Camera';
+
 import CONFIG from '@Game/config.json';
+import { Scene, Math } from 'phaser';
 import Player from '@Game/Player';
 import UI from '@Game/UI';
 
@@ -20,6 +21,7 @@ export default class extends Scene
 
   private platformAnimation?: Tweens.Tween;
   private playerRotation?: Tweens.Tween;
+  private landing!: Sound.BaseSound;
   private camera!: CameraManager;
 
   private gamePaused = true;
@@ -39,15 +41,21 @@ export default class extends Scene
   }
 
   private preload (): void {
-    this.load.image('sky', 'assets/sky.png');
-    this.load.image('stars', 'assets/stars.png');
-    this.load.image('cloud', 'assets/cloud.png');
-    this.load.image('brick', 'assets/brick.png');
+    this.load.image('sky', 'assets/image/sky.png');
+    this.load.image('stars', 'assets/image/stars.png');
+    this.load.image('cloud', 'assets/image/cloud.png');
+    this.load.image('brick', 'assets/image/brick.png');
 
-    this.load.spritesheet('mario', 'assets/mario.png', {
-      frameHeight: 108,
-      frameWidth: 70
-    });
+    this.load.audio('landing', 'assets/audio/landing.wav');
+    this.load.audio('jump', 'assets/audio/jump.wav');
+    this.load.audio('die', 'assets/audio/die.wav');
+
+    this.load.spritesheet('mario',
+      'assets/image/mario.png', {
+        frameHeight: 108,
+        frameWidth: 70
+      }
+    );
   }
 
   private create (): void {
@@ -60,6 +68,8 @@ export default class extends Scene
 
     this.createCamera();
     this.resize(this.scale);
+
+    this.createSoundEffects();
     this.createEventListeners();
 
     this.ui.playIntro(this.camera.scrollToStart.bind(this.camera));
@@ -112,6 +122,13 @@ export default class extends Scene
   private createCamera (): void {
     this.camera = new CameraManager(this.cameras.main);
     this.camera.y = this.cameras.main.centerY * CONFIG.levels * 2;
+  }
+
+  private createSoundEffects (): void {
+    this.landing = this.sound.add('landing', {
+      seek: 0.015,
+      volume: 1
+    });
   }
 
   private createEventListeners (): void {
@@ -180,9 +197,11 @@ export default class extends Scene
       })
     );
 
-    this.camera.zoomIn(this.score);
     this.platformAnimation?.stop();
+    this.camera.zoomIn(this.score);
+
     this.createNextPlatform();
+    this.landing.play();
   }
 
   private onGameOver (): void {
@@ -199,10 +218,8 @@ export default class extends Scene
 
   private resize (size: Scale.ScaleManager): void {
     const { width, height } = size;
-
     this.visibleStars = height * 3.75;
     this.cameras.resize(width, height);
-    this.setPlatformsPosition(width, height);
 
     this.physics.world.bounds.setSize(width, height);
     this.center = { x: width / 2, y: height / 2 };
@@ -213,6 +230,8 @@ export default class extends Scene
 
     this.resetNextPlatform();
     this.setGround(width, height);
+
+    this.setPlatformsPosition(width, height);
     this.player.resize(width, height, this.score);
   }
 

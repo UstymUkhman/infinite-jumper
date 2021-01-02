@@ -19,3 +19,9 @@
 ## Build ##
 
 `yarn build`
+
+## Credits ##
+
+*Music:* 
+
+*Sound Effects:* https://themushroomkingdom.net/media/smb/wav

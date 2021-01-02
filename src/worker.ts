@@ -10,6 +10,6 @@ registerRoute(/\/$/, new StaleWhileRevalidate({
 }), 'GET');
 
 registerRoute(({ request }) =>
-  request.destination === 'image',
+  ['image', 'audio'].includes(request.destination),
   new CacheFirst()
 );

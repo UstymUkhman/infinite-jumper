@@ -1,9 +1,12 @@
+import type { Scene, Sound } from 'phaser';
 import { Physics, Math } from 'phaser';
-import type { Scene } from 'phaser';
 
 export default class Player extends Physics.Arcade.Sprite
 {
+  private jumpSound: Sound.BaseSound;
+  private dieSound: Sound.BaseSound;
   private position: Math.Vector2;
+
   private offsetTime?: number;
   private size: Math.Vector2;
 
@@ -26,6 +29,16 @@ export default class Player extends Physics.Arcade.Sprite
 
       frameRate: 12,
       key: 'jump'
+    });
+
+    this.jumpSound = scene.sound.add('jump', {
+      seek: 0.015,
+      volume: 1
+    });
+
+    this.dieSound = scene.sound.add('die', {
+      seek: 0.015,
+      volume: 1
     });
   }
 
@@ -50,6 +63,8 @@ export default class Player extends Physics.Arcade.Sprite
     if (this.alive && this.body.touching.down) {
       this.setVelocityY(-500.0);
       this.anims.play('jump');
+
+      this.jumpSound.play();
       this.jumping = true;
     }
   }
@@ -65,6 +80,7 @@ export default class Player extends Physics.Arcade.Sprite
     this.setCollideWorldBounds(true);
 
     this.flipX = fromLeft;
+    this.dieSound.play();
     this.alive = false;
 
     return {

@@ -2,6 +2,7 @@ import { Game, Scale } from 'phaser';
 import Scene from '@Game/Scene';
 
 export const game = new Game({
+  audio: { disableWebAudio: true },
   backgroundColor: '#070B34',
   title: 'Infinite Jumper',
 
