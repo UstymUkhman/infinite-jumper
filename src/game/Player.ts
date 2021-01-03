@@ -1,7 +1,7 @@
 import type { Scene, Sound } from 'phaser';
 import { Physics, Math } from 'phaser';
 
-export default class Player extends Physics.Arcade.Sprite
+export default class extends Physics.Arcade.Sprite
 {
   private jumpSound: Sound.BaseSound;
   private dieSound: Sound.BaseSound;

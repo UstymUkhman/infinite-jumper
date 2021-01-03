@@ -1,8 +1,3 @@
-type SoundFade = {
-  fadeIn: (scene: Scene, sound: Sound.BaseSound, duration: number, endVolume?: number, startVolume?: number) => void
-  fadeOut: (scene: Scene, sound: Sound.BaseSound, duration: number, destroy?: boolean) => void
-};
-
 import type { Physics, GameObjects, Sound, Scale, Tweens } from 'phaser';
 
 import { randomEasing } from '@Game/utils';
@@ -11,6 +6,7 @@ import CONFIG from '@Game/config.json';
 
 import { Scene, Math } from 'phaser';
 import Player from '@Game/Player';
+import Music from '@Game/Music';
 import UI from '@Game/UI';
 
 export default class extends Scene
@@ -30,12 +26,13 @@ export default class extends Scene
 
   private landing!: Sound.BaseSound;
   private camera!: CameraManager;
-  private music!: SoundFade;
 
   private gamePaused = true;
   private gameOver = false;
 
   private player!: Player;
+  private music!: Music;
+
   private ui = new UI();
   private score = 0;
 
@@ -80,10 +77,15 @@ export default class extends Scene
 
     this.createCamera();
     this.resize(this.scale);
-    this.createMusicManager();
 
     this.createSoundEffects();
     this.createEventListeners();
+
+    this.music = new Music(this,
+      this.plugins.get('rexSoundFade'),
+      ['VanHalen', 'Queen', 'HouseOfPain']
+    );
+
     this.ui.playIntro(this.camera.scrollToStart.bind(this.camera));
   }
 
@@ -136,19 +138,6 @@ export default class extends Scene
     this.camera.y = this.cameras.main.centerY * CONFIG.levels * 2;
   }
 
-  private createMusicManager (): void {
-    this.music = this.plugins.get('rexSoundFade') as unknown as SoundFade;
-
-    const vanHalen = this.sound.add('VanHalen');
-    this.music.fadeIn(this, vanHalen, 1000, 0.75);
-
-    // this.music.fadeOut(this, vanHalen, 1000);
-
-    // this.music.on('destroy', () => {
-    //     this.music = undefined;
-    // }, this);
-  }
-
   private createSoundEffects (): void {
     this.landing = this.sound.add('landing', {
       seek: 0.015,
@@ -157,11 +146,14 @@ export default class extends Scene
   }
 
   private createEventListeners (): void {
-    document.addEventListener('game:restart', this.restart.bind(this));
-    this.input.on('pointerdown', this.player.jump.bind(this.player));
-
-    document.addEventListener('game:start', this.start.bind(this));
     this.scale.on('resize', this.resize, this);
+    this.input.on('pointerdown', this.player.jump.bind(this.player));
+    document.addEventListener('game:restart', this.restart.bind(this));
+
+    document.addEventListener('game:start', () => {
+      this.music.start();
+      this.start();
+    });
   }
 
   private createNextPlatform (): void {

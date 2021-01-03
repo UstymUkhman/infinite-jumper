@@ -1,4 +1,4 @@
-export default class UI
+export default class
 {
   private intro = document.getElementById('intro')!;
   private score = document.getElementById('score')!;

@@ -2,7 +2,8 @@ import { Math as MathUtil } from 'phaser';
 import type Player from '@Game/Player';
 import type { Cameras } from 'phaser';
 
-export default class CameraManager {
+export default class
+{
   private initialPosition?: number;
   private following = false;
 
@@ -13,9 +14,11 @@ export default class CameraManager {
   }
 
   public follow (target: Player, y = this.initialPosition): void {
-    this.camera.startFollow(target, false, 1, 0.1, 0, y);
-    this.initialPosition = y;
     this.following = true;
+    this.initialPosition = y;
+
+    this.camera.panEffect.reset();
+    this.camera.startFollow(target, false, 1, 0.1, 0, y);
   }
 
   public zoomIn (amount: number): void {
