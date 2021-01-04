@@ -1,59 +1,56 @@
-import type { Scene, Sound } from 'phaser';
+import { Scene, Sound } from 'phaser';
 enum Artist { VanHalen, Queen, HouseOfPain };
-
-type SoundFade = {
-  fadeIn: (
-    scene: Scene,
-    sound: Sound.BaseSound | string,
-    duration: number,
-    endVolume?: number,
-    startVolume?: number
-  ) => void
-
-  fadeOut: (
-    scene: Scene,
-    sound: Sound.BaseSound | string,
-    duration: number,
-    destroy?: boolean
-  ) => void
-};
 
 export default class
 {
-  private artists: Array<Sound.BaseSound>;
-  private tracks: Array<Artist>;
+  private tracks: Array<Sound.BaseSound>;
+  private artists: Array<Artist>;
 
   private music: SoundFade;
-  private track: Artist;
+  private artist: Artist;
 
-  public constructor (private scene: Scene, soundFade: unknown, tracks: unknown) {
-    this.tracks = tracks as Array<Artist>;
+  private track = -1;
+
+  public constructor (private scene: Scene, soundFade: unknown, artists: unknown) {
+    this.artists = artists as Array<Artist>;
+    this.artist = this.artists[this.track];
     this.music = soundFade as SoundFade;
-    this.track = this.tracks[0];
 
-    this.artists = this.tracks.map(
+    this.tracks = this.artists.map(
       artist => this.scene.sound.add(artist as unknown as string)
     );
   }
 
   public start (): void {
-    this.music.fadeIn(this.scene, this.currentTrack, 1000, 0.5);
+    this.playNextTrack();
+  }
 
-    // this.music.fadeOut(this.scene, this.currentTrack, 1000);
+  private playNextTrack (): void {
+    ++this.track > 2 && this.shuffle();
+    this.artist = this.artists[this.track];
 
-    // this.currentTrack.on('destroy', () => { }, this);
+    const track = this.currentTrack;
+    const fade = track.duration * 1e3 - 1e3;
+
+    this.music.fadeIn(this.scene, track, 1e3, 0.1);
+
+    setTimeout(() => {
+      this.music.fadeOut(this.scene, track, 1e3, false);
+      this.playNextTrack();
+    }, fade);
   }
 
   private shuffle (): void {
-    do this.tracks = this.tracks.sort(() => Math.random() - 0.5);
-    while (this.tracks[0] === this.track);
+    do this.artists = this.artists.sort(() => Math.random() - 0.5);
+    while (this.artists[0] === this.artist);
+    this.track = 0;
   }
 
   private get currentTrack (): Sound.BaseSound {
-    return this.artists[this.currentArtist];
+    return this.tracks[this.currentArtist];
   }
 
   private get currentArtist (): number {
-    return Artist[this.track] as unknown as number;
+    return Artist[this.artist] as unknown as number;
   }
 }

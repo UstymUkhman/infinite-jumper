@@ -1,11 +1,11 @@
 import type { Physics, GameObjects, Sound, Scale, Tweens } from 'phaser';
 
-import { randomEasing } from '@Game/utils';
-import CameraManager from '@Game/Camera';
-import CONFIG from '@Game/config.json';
-
+import { clouds, easing } from '@Game/utils';
 import { Scene, Math } from 'phaser';
+
+import Camera from '@Game/Camera';
 import Player from '@Game/Player';
+
 import Music from '@Game/Music';
 import UI from '@Game/UI';
 
@@ -23,17 +23,16 @@ export default class extends Scene
 
   private platformAnimation?: Tweens.Tween;
   private playerRotation?: Tweens.Tween;
-
   private landing!: Sound.BaseSound;
-  private camera!: CameraManager;
 
   private gamePaused = true;
   private gameOver = false;
 
+  private camera!: Camera;
   private player!: Player;
-  private music!: Music;
 
-  private ui = new UI();
+  private music!: Music;
+  private ui = new UI;
   private score = 0;
 
   private center = {
@@ -69,13 +68,9 @@ export default class extends Scene
 
   private create (): void {
     this.createEnvironment();
-    this.player = new Player(this, 'mario');
-    this.player.lookLeft = this.leftPlatform;
-
-    this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
-    this.physics.add.collider(this.player, this.ground as Physics.Arcade.StaticGroup);
-
     this.createCamera();
+
+    this.createPlayer();
     this.resize(this.scale);
 
     this.createSoundEffects();
@@ -128,20 +123,28 @@ export default class extends Scene
     this.sky = this.add.image(0, 0, 'sky').setScrollFactor(0, 1);
     this.stars = this.add.image(0, 0, 'stars').setScrollFactor(0).setAlpha(1);
 
-    this.clouds = this.add.group(CONFIG.clouds.map(([x, y, scroll]) =>
+    this.clouds = this.add.group(clouds.map(([x, y, scroll]) =>
       this.add.image(x, y, 'cloud').setScrollFactor(0, scroll)
     ));
+
+    this.ground = this.physics.add.staticGroup({ defaultKey: 'brick' });
   }
 
   private createCamera (): void {
-    this.camera = new CameraManager(this.cameras.main);
-    this.camera.y = this.cameras.main.centerY * CONFIG.levels * 2;
+    this.camera = new Camera(this.cameras.main);
+    this.camera.y = this.cameras.main.centerY * 12;
+  }
+
+  private createPlayer (): void {
+    this.player = new Player(this, 'mario');
+    this.player.lookLeft = this.leftPlatform;
+    this.physics.add.collider(this.player, this.ground!);
   }
 
   private createSoundEffects (): void {
     this.landing = this.sound.add('landing', {
-      seek: 0.015,
-      volume: 1
+      volume: 0.25,
+      seek: 0.015
     });
   }
 
@@ -184,7 +187,7 @@ export default class extends Scene
       targets: this.platforms[p].getChildren(),
 
       delay: Math.Between(0, 1000),
-      ease: randomEasing()
+      ease: easing()
     });
   }
 
@@ -254,13 +257,12 @@ export default class extends Scene
 
   private setSky (width: number, height: number): void {
     const displayWidth = height / 9 * 16;
-    const midLevel = CONFIG.levels / 2;
 
     this.sky.displayWidth = width;
     this.sky.displayHeight = height * 6;
 
     this.sky.setPosition(
-      this.center.x, this.sky.displayHeight / -midLevel
+      this.center.x, this.sky.displayHeight / -3
     );
 
     if (displayWidth < width) {
@@ -283,7 +285,7 @@ export default class extends Scene
     const cloudHeight = cloudWidth / 1.406;
 
     this.clouds.children.iterate((child: GameObjects.GameObject, index: number) => {
-      const [offsetX, offsetY] = CONFIG.clouds[index];
+      const [offsetX, offsetY] = clouds[index];
       const cloud = child as GameObjects.Image;
       let { x, y } = this.center;
 

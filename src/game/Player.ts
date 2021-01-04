@@ -32,13 +32,13 @@ export default class extends Physics.Arcade.Sprite
     });
 
     this.jumpSound = scene.sound.add('jump', {
-      seek: 0.015,
-      volume: 1
+      volume: 0.25,
+      seek: 0.015
     });
 
     this.dieSound = scene.sound.add('die', {
-      seek: 0.015,
-      volume: 1
+      volume: 0.25,
+      seek: 0.015
     });
   }
 

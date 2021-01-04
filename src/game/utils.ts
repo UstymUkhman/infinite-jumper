@@ -1,39 +1,55 @@
-import { Math as MathUtils } from 'phaser';
+import { Math } from 'phaser';
 
 const EASINGS = [
-  MathUtils.Easing.Linear,
+  Math.Easing.Linear,
 
-  MathUtils.Easing.Quadratic.In,
-  MathUtils.Easing.Quadratic.Out,
-  MathUtils.Easing.Quadratic.InOut,
+  Math.Easing.Quadratic.In,
+  Math.Easing.Quadratic.Out,
+  Math.Easing.Quadratic.InOut,
 
-  MathUtils.Easing.Cubic.In,
-  MathUtils.Easing.Cubic.Out,
-  MathUtils.Easing.Cubic.InOut,
+  Math.Easing.Cubic.In,
+  Math.Easing.Cubic.Out,
+  Math.Easing.Cubic.InOut,
 
-  MathUtils.Easing.Quartic.In,
-  MathUtils.Easing.Quartic.Out,
-  MathUtils.Easing.Quartic.InOut,
+  Math.Easing.Quartic.In,
+  Math.Easing.Quartic.Out,
+  Math.Easing.Quartic.InOut,
 
-  MathUtils.Easing.Quintic.In,
-  MathUtils.Easing.Quintic.Out,
-  MathUtils.Easing.Quintic.InOut,
+  Math.Easing.Quintic.In,
+  Math.Easing.Quintic.Out,
+  Math.Easing.Quintic.InOut,
 
-  MathUtils.Easing.Sine.In,
-  MathUtils.Easing.Sine.Out,
-  MathUtils.Easing.Sine.InOut,
+  Math.Easing.Sine.In,
+  Math.Easing.Sine.Out,
+  Math.Easing.Sine.InOut,
 
-  MathUtils.Easing.Expo.In,
-  MathUtils.Easing.Expo.Out,
-  MathUtils.Easing.Expo.InOut,
+  Math.Easing.Expo.In,
+  Math.Easing.Expo.Out,
+  Math.Easing.Expo.InOut,
 
-  MathUtils.Easing.Circular.In,
-  MathUtils.Easing.Circular.Out,
-  MathUtils.Easing.Circular.InOut,
+  Math.Easing.Circular.In,
+  Math.Easing.Circular.Out,
+  Math.Easing.Circular.InOut,
 
-  MathUtils.Easing.Back.In,
-  MathUtils.Easing.Back.Out,
-  MathUtils.Easing.Back.InOut
+  Math.Easing.Back.In,
+  Math.Easing.Back.Out,
+  Math.Easing.Back.InOut
 ];
 
-export const randomEasing = () => EASINGS[MathUtils.Between(0, EASINGS.length - 1)];
+export const clouds = [
+  [-0.95, -3.0, 0.85],
+  [-0.75, -3.0, 0.85],
+  [-0.55, -3.0, 0.85],
+
+  [0.45,  -3.2, 0.95],
+  [0.25,  -3.2, 0.95],
+
+  [-0.2,  -3.3, 0.90],
+
+  [0.85,  -3.5, 0.75],
+  [0.65,  -3.5, 0.75],
+  [0.45,  -3.5, 0.75]
+];
+
+export const easing = () =>
+  EASINGS[Math.Between(0, EASINGS.length - 1)];
