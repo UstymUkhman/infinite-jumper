@@ -1,8 +1,9 @@
 export default class
 {
-  private intro = document.getElementById('intro')!;
+  private bestScore = document.getElementById('bestScore')!;
   private score = document.getElementById('score')!;
 
+  private intro = document.getElementById('intro')!;
   private end = document.getElementById('end')!;
   private ui = document.getElementById('ui')!;
 
@@ -10,9 +11,11 @@ export default class
   private update: (event: CustomEventInit) => void;
   private restart: () => void;
 
-  private callback?: number;
   private startEvent: CustomEvent;
   private restartEvent: CustomEvent;
+
+  private savedScore = this.savedBestScore;
+  private callback?: number;
 
   public constructor () {
     this.start = this.onStart.bind(this);
@@ -21,7 +24,9 @@ export default class
 
     this.startEvent = new CustomEvent('game:start');
     this.restartEvent = new CustomEvent('game:restart');
+
     document.addEventListener('score:update', this.update);
+    this.bestScore.textContent = this.savedScore.toString();
   }
 
   private onStart (): void {
@@ -34,12 +39,17 @@ export default class
   }
 
   private onUpdate (event: CustomEventInit): void {
+    const bestScore = Math.max(event.detail.score, this.savedScore).toString();
+
+    localStorage.setItem('Best Score', bestScore);
     this.score.textContent = event.detail.score;
+    this.bestScore.textContent = bestScore;
   }
 
   private onRestart (): void {
     this.end.removeEventListener('click', this.restart);
     document.dispatchEvent(this.restartEvent);
+    this.savedScore = this.savedBestScore;
 
     this.end.classList.remove('interactable');
     this.end.classList.remove('fadeIn');
@@ -60,5 +70,9 @@ export default class
 
     this.ui.classList.remove('fadeIn');
     this.end.classList.add('fadeIn');
+  }
+
+  private get savedBestScore (): number {
+    return +(localStorage.getItem('Best Score') ?? '0');
   }
 }

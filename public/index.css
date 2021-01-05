@@ -11,7 +11,7 @@
 }
 
 :root {
-  --overlayBackground: rgba(0, 0, 0, 0.25);
+  --overlayBackground: rgba(0, 0, 0, 0.5);
 
   --easeInQuad: cubic-bezier(0.550, 0.085, 0.680, 0.530);
   --easeOutQuad: cubic-bezier(0.250, 0.460, 0.450, 0.940);
@@ -164,16 +164,31 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 1;
 }
 
-#ui #score {
+#ui #score {  
   position: absolute;
   line-height: 3vw;
   font-size: 3vw;
 
   height: 3vw;
-  width: 100%;
-
+  right: 5vw;
   top: 2.5vh;
-  left: 0;
+}
+
+#ui .bestScore {
+  position: absolute;
+
+  line-height: 1vw;
+  font-size: 1vw;
+  height: 1vw;
+
+  left: 5vw;
+  top: 3vh;
+}
+
+#ui .bestScore #bestScore,
+#ui .bestScore .bestScoreLabel {
+  display: inline-block;
+  position: relative;
 }
 
 #end {
@@ -233,6 +248,12 @@ h1, h2, h3, h4, h5, h6, p, span {
     font-size: 4vw;
     height: 4vw;
   }
+
+  #ui .bestScore {
+    line-height: 2vw;
+    font-size: 2vw;
+    height: 2vw;
+  }
 }
 
 @media only screen and (max-width: 480px) {
@@ -247,6 +268,12 @@ h1, h2, h3, h4, h5, h6, p, span {
     line-height: 6vw;
     font-size: 6vw;
     height: 6vw;
+  }
+
+  #ui .bestScore {
+    line-height: 10px;
+    font-size: 10px;
+    height: 10px;
   }
 }
 
