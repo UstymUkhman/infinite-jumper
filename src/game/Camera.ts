@@ -27,7 +27,7 @@ export default class
     this.camera.setFollowOffset(0, this.camera.followOffset.y / zoom);
   }
 
-  public zoomOut (duration: number): void {
+  public zoomOut (duration: number): number {
     duration = MathUtil.Clamp(duration, 500, 3500);
 
     this.following = false;
@@ -38,6 +38,8 @@ export default class
       this.camera.centerX, this.camera.centerY,
       duration, 'Quad.easeOut'
     );
+
+    return duration;
   }
 
   public resize (offset: number): void {

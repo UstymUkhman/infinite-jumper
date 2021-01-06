@@ -160,8 +160,9 @@ export default class extends Scene
   }
 
   private createNextPlatform (): void {
-    const duration = this.score > 29 ? 1000 : this.score > 14 ? 1500 : 2000;
-    const bricks = this.score > 24 ? 1 : this.score > 9 ? 2 : 3;
+    const bricks = 3 - this.scoreMultiplier;
+    const [easingFunction, minDuration] = easing();
+    const duration = (0.5 * bricks + 0.5) * minDuration;
 
     const p = this.platforms.length;
     const width = 64 * bricks;
@@ -187,7 +188,7 @@ export default class extends Scene
       targets: this.platforms[p].getChildren(),
 
       delay: Math.Between(0, 1000),
-      ease: easing()
+      ease: easingFunction
     });
   }
 
@@ -225,15 +226,18 @@ export default class extends Scene
   }
 
   private onGameOver (): void {
-    this.gameOver = true;
-    this.gamePaused = true;
-
-    this.ui.showGameOver();
-    this.camera.zoomOut(this.score * 140);
+    const delay = this.camera.zoomOut(this.score * 140);
 
     this.playerRotation = this.add.tween(
       this.player.die(this.leftPlatform)
     );
+
+    setTimeout(() => {
+      this.gamePaused = true;
+      this.gameOver = true;
+    }, delay);
+
+    this.ui.showGameOver();
   }
 
   private resize (size: Scale.ScaleManager): void {
@@ -329,5 +333,9 @@ export default class extends Scene
       this.platformAnimation.stop();
       !this.gameOver && this.createNextPlatform();
     }
+  }
+
+  private get scoreMultiplier (): 0 | 1 | 2 {
+    return this.score < 15 ? 0 : this.score < 30 ? 1 : 2;
   }
 };

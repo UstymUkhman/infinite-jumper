@@ -2,9 +2,9 @@ import Scene from '@Game/Scene';
 import { Game, Scale } from 'phaser';
 import SoundFadePlugin from 'phaser3-rex-plugins/plugins/soundfade-plugin';
 
-// 'serviceWorker' in navigator && window.addEventListener('load', () =>
-//   navigator.serviceWorker.register('worker.js')
-// );
+'serviceWorker' in navigator && window.addEventListener('load', () =>
+  navigator.serviceWorker.register('worker.js')
+);
 
 export const game = new Game({
   audio: { disableWebAudio: true },

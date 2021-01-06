@@ -1,40 +1,41 @@
 import { Math } from 'phaser';
+type Easing = (v: number, overshoot?: number) => number;
 
-const EASINGS = [
-  Math.Easing.Linear,
+const EASINGS = [...new Map([
+  [Math.Easing.Linear,          1000],
 
-  Math.Easing.Quadratic.In,
-  Math.Easing.Quadratic.Out,
-  Math.Easing.Quadratic.InOut,
+  [Math.Easing.Quadratic.In,    750 ],
+  [Math.Easing.Quadratic.Out,   1250],
+  [Math.Easing.Quadratic.InOut, 750 ],
 
-  Math.Easing.Cubic.In,
-  Math.Easing.Cubic.Out,
-  Math.Easing.Cubic.InOut,
+  [Math.Easing.Cubic.In,        750 ],
+  [Math.Easing.Cubic.Out,       1500],
+  [Math.Easing.Cubic.InOut,     1000],
 
-  Math.Easing.Quartic.In,
-  Math.Easing.Quartic.Out,
-  Math.Easing.Quartic.InOut,
+  [Math.Easing.Quartic.In,      750 ],
+  [Math.Easing.Quartic.Out,     1750],
+  [Math.Easing.Quartic.InOut,   1000],
 
-  Math.Easing.Quintic.In,
-  Math.Easing.Quintic.Out,
-  Math.Easing.Quintic.InOut,
+  [Math.Easing.Quintic.In,      750 ],
+  [Math.Easing.Quintic.Out,     2500],
+  [Math.Easing.Quintic.InOut,   2500],
 
-  Math.Easing.Sine.In,
-  Math.Easing.Sine.Out,
-  Math.Easing.Sine.InOut,
+  [Math.Easing.Sine.In,         750 ],
+  [Math.Easing.Sine.Out,        500 ],
+  [Math.Easing.Sine.InOut,      750 ],
 
-  Math.Easing.Expo.In,
-  Math.Easing.Expo.Out,
-  Math.Easing.Expo.InOut,
+  [Math.Easing.Expo.In,         500 ],
+  [Math.Easing.Expo.Out,        3000],
+  [Math.Easing.Expo.InOut,      2500],
 
-  Math.Easing.Circular.In,
-  Math.Easing.Circular.Out,
-  Math.Easing.Circular.InOut,
+  [Math.Easing.Circular.In,     1000],
+  [Math.Easing.Circular.Out,    2000],
+  [Math.Easing.Circular.InOut,  1000],
 
-  Math.Easing.Back.In,
-  Math.Easing.Back.Out,
-  Math.Easing.Back.InOut
-];
+  [Math.Easing.Back.In,         2000],
+  [Math.Easing.Back.Out,        2500],
+  [Math.Easing.Back.InOut,      2000]
+]) as unknown as [Easing, number][]];
 
 export const clouds = [
   [-0.95, -3.0, 0.85],
@@ -51,5 +52,5 @@ export const clouds = [
   [0.45,  -3.5, 0.75]
 ];
 
-export const easing = () =>
+export const easing = (): [Easing, number] =>
   EASINGS[Math.Between(0, EASINGS.length - 1)];

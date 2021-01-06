@@ -39,11 +39,12 @@ export default class
   }
 
   private onUpdate (event: CustomEventInit): void {
-    const bestScore = Math.max(event.detail.score, this.savedScore).toString();
+    const score = event.detail.score;
+    const bestScore = Math.max(score, this.savedScore).toString();
 
     localStorage.setItem('Best Score', bestScore);
-    this.score.textContent = event.detail.score;
     this.bestScore.textContent = bestScore;
+    this.score.textContent = score;
   }
 
   private onRestart (): void {
@@ -65,7 +66,7 @@ export default class
   }
 
   public showGameOver (): void {
-    setTimeout(() => this.end.classList.add('interactable'), 1500);
+    setTimeout(() => this.end.classList.add('interactable'), 1250);
     this.end.addEventListener('click', this.restart);
 
     this.ui.classList.remove('fadeIn');
