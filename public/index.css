@@ -108,21 +108,23 @@ h1, h2, h3, h4, h5, h6, p, span {
   position: absolute;
 
   display: block;
-  height: 15vw;
   width: 100%;
 
   top: 50%;
   left: 0;
 }
 
-.description span {
-  position: absolute;
+.description span.tap {
   line-height: 2vw;
   font-size: 2vw;
 
   height: 2vw;
   width: 100%;
   opacity: 0;
+}
+
+#intro .description {
+  height: 15vw;
 }
 
 #intro .description h2 {
@@ -135,8 +137,9 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 0;
 }
 
-#intro .description span {
+#intro .description span.tap {
   transition: opacity 0.5s var(--easeInOutQuad) 7.5s;
+  position: absolute;
   bottom: 0.5vw;
 }
 
@@ -150,7 +153,7 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 #intro.start .description h2,
-#intro.start .description span {
+#intro.start .description span.tap {
   opacity: 1;
 }
 
@@ -185,7 +188,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   top: 3vh;
 }
 
-#ui .bestScore #bestScore,
+#ui .bestScore #bestScoreUI,
 #ui .bestScore .bestScoreLabel {
   display: inline-block;
   position: relative;
@@ -206,20 +209,35 @@ h1, h2, h3, h4, h5, h6, p, span {
   pointer-events: all;
 }
 
-#end .description {
-  height: 20vw;
-}
-
 #end .description h2 {
-  line-height: 8vw;
-  font-size: 8vw;
+  line-height: 10vw;
+  font-size: 10vw;
 
-  height: 8vw;
+  height: 10vw;
   opacity: 0;
 }
 
-#end .description span {
-  bottom: 0.5vw;
+#end .description .score {
+  justify-content: space-between;
+  align-content: center;
+  flex-direction: row;
+
+  align-items: center;
+  margin: 10vh auto;
+  max-width: 60vw;
+
+  flex-wrap: wrap;
+  display: flex;  
+  width: 90%;
+}
+
+#end .description .score span {
+  margin-bottom: 3vh;
+  line-height: 3vw;
+
+  font-size: 3vw;
+  height: 3vw;
+  opacity: 0;  
 }
 
 #end.fadeIn .description h2 {
@@ -227,18 +245,34 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 1;
 }
 
-#end.fadeIn .description span {
+#end.fadeIn .description .score .currentScore {
+  transition: opacity 0.5s var(--easeInOutQuad) 1.25s;
+  opacity: 1;
+}
+
+#end.fadeIn .description .score #currentScore {
   transition: opacity 0.5s var(--easeInOutQuad) 1.5s;
+  opacity: 1;
+}
+
+#end.fadeIn .description .score .bestScore {
+  transition: opacity 0.5s var(--easeInOutQuad) 1.75s;
+  opacity: 1;
+}
+
+#end.fadeIn .description .score #bestScore {
+  transition: opacity 0.5s var(--easeInOutQuad) 2s;
+  opacity: 1;
+}
+
+#end.fadeIn .description span.tap {
+  transition: opacity 0.5s var(--easeInOutQuad) 2.25s;
   opacity: 1;
 }
 
 @media only screen and (orientation: landscape) {
   #intro .description {
     height: 10vw;
-  }
-
-  #end .description {
-    height: 16vw;
   }
 }
 
@@ -257,8 +291,18 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 @media only screen and (max-width: 480px) {
-  #end .description span,
-  #intro .description span {  
+  #end .description .score {
+    max-width: 325px;
+  }
+
+  #end .description .score span {
+    line-height: 16px;
+    font-size: 16px;
+    height: 16px;
+  }
+
+  #end .description span.tap,
+  #intro .description span.tap {  
     line-height: 12px;
     font-size: 12px;
     height: 12px;

@@ -62,7 +62,7 @@
 
       <div class="description">
         <h2>Player One Get Ready!</h2>
-        <span>Tap to start playing</span>
+        <span class="tap">Tap to start playing</span>
       </div>
     </section>
 
@@ -71,14 +71,23 @@
 
       <div class="bestScore">
         <span class="bestScoreLabel">Best Score: </span>
-        <span id="bestScore">0</span>
+        <span id="bestScoreUI">0</span>
       </div>
     </section>
 
     <section id="end">
       <div class="description">
         <h2>Game Over</h2>
-        <span>Tap to restart</span>
+
+        <div class="score">
+          <span class="label currentScore">Current Score:</span>
+          <span id="currentScore"></span>
+  
+          <span class="label bestScore">Best Score:</span>
+          <span id="bestScore"></span>
+        </div>
+
+        <span class="tap">Tap to restart</span>
       </div>
     </section>
 

@@ -161,14 +161,16 @@ export default class extends Scene
 
   private createNextPlatform (): void {
     const bricks = 3 - this.scoreMultiplier;
-    const [easingFunction, minDuration] = easing();
-    const duration = (0.5 * bricks + 0.5) * minDuration;
+    const [ease, minDuration] = easing();
 
     const p = this.platforms.length;
     const width = 64 * bricks;
 
     const x = this.leftPlatform ? 32 - width : this.scale.width + 32;
     const y = this.scale.height - 160 - this.score * 64;
+
+    let duration = (0.5 * bricks + 0.5) * minDuration;
+    duration = Math.Between(duration, duration + 500);
 
     this.platforms.push(this.physics.add.staticGroup({
       setXY: { x, y, stepX: 64 },
@@ -182,14 +184,16 @@ export default class extends Scene
 
     this.platformAnimation = this.add.tween({
       props: { x: `${this.leftPlatform ? '+' : '-'}= ${this.center.x + width / 2}` },
-      duration: Math.Between(duration, duration + 500),
+      onUpdate: (tween, brick) => this.onPlatformUpdate(tween, brick, duration),
 
-      onUpdate: (tween, brick) => brick.refreshBody(),
       targets: this.platforms[p].getChildren(),
-
       delay: Math.Between(0, 1000),
-      ease: easingFunction
+      duration, ease
     });
+  }
+
+  private onPlatformUpdate (tween: Tweens.Tween, brick: Physics.Arcade.Sprite, duration: number): void {
+    brick.refreshBody();
   }
 
   private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
@@ -213,9 +217,10 @@ export default class extends Scene
     this.player.lookLeft = this.leftPlatform;
 
     /* !this.autoplay && */ document.dispatchEvent(
-      new CustomEvent('score:update', {
-        detail: { score: ++this.score }
-      })
+      new CustomEvent('score:update', { detail: {
+        multiplier: this.scoreMultiplier,
+        score: ++this.score
+      }})
     );
 
     this.platformAnimation?.stop();
