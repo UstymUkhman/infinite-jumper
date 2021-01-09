@@ -3,6 +3,8 @@ import { Physics, Math } from 'phaser';
 
 export default class extends Physics.Arcade.Sprite
 {
+  public readonly jumpTiming = 1000 / 12 * 4;
+
   private jumpSound: Sound.BaseSound;
   private dieSound: Sound.BaseSound;
   private position: Math.Vector2;

@@ -1,11 +1,9 @@
 import type { Physics, GameObjects, Sound, Scale, Tweens } from 'phaser';
-
-import { clouds, easing } from '@Game/utils';
-import { Scene, Math } from 'phaser';
+import { Easing, easing, clouds } from '@Game/utils';
+import { Scene, Math as MathUtils } from 'phaser';
 
 import Camera from '@Game/Camera';
 import Player from '@Game/Player';
-
 import Music from '@Game/Music';
 import UI from '@Game/UI';
 
@@ -16,9 +14,9 @@ export default class extends Scene
   private clouds!: GameObjects.Group;
 
   private platforms: Array<Physics.Arcade.StaticGroup> = [];
-  private visibleStars = window.innerHeight * 3.75;
+  private leftPlatform = MathUtils.Between(0, 1) < 1;
 
-  private leftPlatform = Math.Between(0, 1) < 1;
+  private visibleStars = window.innerHeight * 3.75;
   private ground?: Physics.Arcade.StaticGroup;
 
   private platformAnimation?: Tweens.Tween;
@@ -27,6 +25,7 @@ export default class extends Scene
 
   private gamePaused = true;
   private gameOver = false;
+  private autoplay = true;
 
   private camera!: Camera;
   private player!: Player;
@@ -95,7 +94,7 @@ export default class extends Scene
 
     const starsArea = this.sky.displayHeight - this.visibleStars;
 
-    const scrollArea = Math.Clamp(
+    const scrollArea = MathUtils.Clamp(
       this.camera.y, this.visibleStars, this.sky.displayHeight
     ) - this.visibleStars;
 
@@ -166,17 +165,29 @@ export default class extends Scene
     const p = this.platforms.length;
     const width = 64 * bricks;
 
-    const x = this.leftPlatform ? 32 - width : this.scale.width + 32;
-    const y = this.scale.height - 160 - this.score * 64;
-
+    let delay = 100;
+    const repeat = bricks - 1;
     let duration = (0.5 * bricks + 0.5) * minDuration;
-    duration = Math.Between(duration, duration + 500);
+
+    const y = this.scale.height - 160 - this.score * 64;
+    const x = this.leftPlatform ? 32 - width : this.scale.width + 32;
+
+    const offset = -~~!this.leftPlatform * (bricks * 32 + 35) + 35;
+    const player = this.center.x + ~~this.leftPlatform * -70 + offset;
+
+    if (!this.autoplay && bricks > 1) {
+      const maxDelay = repeat * 500;
+      const maxDuration = (repeat - 1) * 250 + 250;
+
+      duration = MathUtils.Between(duration, maxDuration);
+      delay = MathUtils.Between(maxDelay - 500, maxDelay);
+    }
 
     this.platforms.push(this.physics.add.staticGroup({
       setXY: { x, y, stepX: 64 },
       defaultKey: 'brick',
-      repeat: bricks - 1,
-      key: 'brick'
+      key: 'brick',
+      repeat
     }));
 
     this.platforms[p].getChildren().forEach(platform => platform.setData('index', this.score));
@@ -184,16 +195,29 @@ export default class extends Scene
 
     this.platformAnimation = this.add.tween({
       props: { x: `${this.leftPlatform ? '+' : '-'}= ${this.center.x + width / 2}` },
-      onUpdate: (tween, brick) => this.onPlatformUpdate(tween, brick, duration),
+      onUpdate: (tween, brick) => this.onPlatformUpdate(tween, brick, ease, player),
 
       targets: this.platforms[p].getChildren(),
-      delay: Math.Between(0, 1000),
-      duration, ease
+      duration, delay, ease
     });
   }
 
-  private onPlatformUpdate (tween: Tweens.Tween, brick: Physics.Arcade.Sprite, duration: number): void {
+  private nextPlatformPosition (tween: Tweens.Tween, ease: Easing): number {
+    const offset = ~~!this.leftPlatform * -64 + 32;
+    const frame = tween.elapsed + this.player.jumpTiming;
+
+    const progress = Math.min(frame / tween.duration, 1.0);
+    const bricks = ~~this.leftPlatform * (tween.totalTargets - 1);
+
+    return (tween.data[bricks].end || 0 + offset) * ease(progress);
+  }
+
+  private onPlatformUpdate (tween: Tweens.Tween, brick: Physics.Arcade.Sprite, ease: Easing, player: number): void {
     brick.refreshBody();
+    if (!this.autoplay) return;
+
+    const platform = this.nextPlatformPosition(tween, ease);
+    player - platform <= 64 && this.player.jump();
   }
 
   private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
@@ -213,13 +237,14 @@ export default class extends Scene
   }
 
   private onPlatformLanding (): void {
-    this.leftPlatform = Math.Between(0, 1) < 1;
+    this.leftPlatform = MathUtils.Between(0, 1) < 1;
     this.player.lookLeft = this.leftPlatform;
+    this.score++;
 
-    /* !this.autoplay && */ document.dispatchEvent(
+    !this.autoplay && document.dispatchEvent(
       new CustomEvent('score:update', { detail: {
         multiplier: this.scoreMultiplier,
-        score: ++this.score
+        score: this.score
       }})
     );
 
@@ -308,7 +333,7 @@ export default class extends Scene
   }
 
   private setGround (width: number, height: number): void {
-    const bricks = Math.CeilTo(width / 64);
+    const bricks = MathUtils.CeilTo(width / 64);
     this.ground?.clear(true, true);
 
     for (let r = 2; r--;)
