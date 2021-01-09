@@ -1,8 +1,8 @@
 export default class
 {
+  private multiplyScore = document.getElementById('scoreMultiplier')!;
   private currentScore = document.getElementById('currentScore')!;
-  private gameBestScore = document.getElementById('bestScore')!;
-  private bestScore = document.getElementById('bestScoreUI')!;
+  private bestScore = document.getElementById('bestScore')!;
 
   private score = document.getElementById('score')!;
   private intro = document.getElementById('intro')!;
@@ -19,6 +19,9 @@ export default class
 
   private savedScore = this.savedBestScore;
   private scoreMultiplier = 0;
+  private lastMultiplier = 0;
+
+  private bonusTime?: number;
   private callback?: number;
 
   public constructor () {
@@ -28,9 +31,13 @@ export default class
 
     this.startEvent = new CustomEvent('game:start');
     this.restartEvent = new CustomEvent('game:restart');
-
     document.addEventListener('score:update', this.update);
-    this.bestScore.textContent = this.savedScore.toString();
+  }
+
+  public playIntro (callback: () => void): void {
+    this.intro.addEventListener('click', this.start);
+    this.callback = setTimeout(callback, 4500);
+    this.intro.classList.add('start');
   }
 
   private onStart (): void {
@@ -43,14 +50,38 @@ export default class
   }
 
   private onUpdate (event: CustomEventInit): void {
-    this.scoreMultiplier += event.detail.multiplier;
+    const { score, multiplier } = event.detail;
+    this.scoreMultiplier += multiplier;
 
-    const score = event.detail.score + this.scoreMultiplier;
-    const bestScore = Math.max(score, this.savedScore).toString();
+    const currentScore = score + this.scoreMultiplier;
+    const bestScore = Math.max(currentScore, this.savedScore).toString();
+
+    if (this.lastMultiplier !== multiplier) {
+      this.bonusTime = setTimeout(this.onBonusEnd.bind(this), 2000);
+      this.multiplyScore.textContent = `x${multiplier + 1}`;
+
+      this.multiplyScore.classList.add('animate');
+      this.lastMultiplier = multiplier;
+    }
 
     localStorage.setItem('Best Score', bestScore);
-    this.bestScore.textContent = bestScore;
-    this.score.textContent = score;
+    this.score.textContent = currentScore;
+  }
+
+  private onBonusEnd (): void {
+    this.multiplyScore.classList.remove('animate');
+  }
+
+  public showGameOver (): void {
+    this.end.addEventListener('click', this.restart);
+    setTimeout(() => this.end.classList.add('interactable'), 1250);
+
+    this.bestScore.textContent = this.savedScore.toString();
+    this.currentScore.textContent = this.score.textContent;
+
+    this.ui.classList.remove('fadeIn');
+    this.end.classList.add('fadeIn');
+    clearTimeout(this.bonusTime);
   }
 
   private onRestart (): void {
@@ -64,23 +95,7 @@ export default class
 
     this.score.textContent = '0';
     this.scoreMultiplier = 0;
-  }
-
-  public playIntro (callback: () => void): void {
-    this.intro.addEventListener('click', this.start);
-    this.callback = setTimeout(callback, 4500);
-    this.intro.classList.add('start');
-  }
-
-  public showGameOver (): void {
-    this.end.addEventListener('click', this.restart);
-    setTimeout(() => this.end.classList.add('interactable'), 1250);
-
-    this.gameBestScore.textContent = this.bestScore.textContent;
-    this.currentScore.textContent = this.score.textContent;
-
-    this.ui.classList.remove('fadeIn');
-    this.end.classList.add('fadeIn');
+    this.lastMultiplier = 0;
   }
 
   private get savedBestScore (): number {

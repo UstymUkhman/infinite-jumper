@@ -167,31 +167,30 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 1;
 }
 
-#ui #score {  
+#ui #score,
+#ui #scoreMultiplier {
   position: absolute;
   line-height: 3vw;
-  font-size: 3vw;
 
+  font-size: 3vw;
   height: 3vw;
-  right: 5vw;
+
+  right: 0;
+  left: 0;
+}
+
+#ui #score {
   top: 2.5vh;
 }
 
-#ui .bestScore {
-  position: absolute;
-
-  line-height: 1vw;
-  font-size: 1vw;
-  height: 1vw;
-
-  left: 5vw;
-  top: 3vh;
+#ui #scoreMultiplier {
+  transform-origin: center;
+  opacity: 0;
+  top: 20vh;
 }
 
-#ui .bestScore #bestScoreUI,
-#ui .bestScore .bestScoreLabel {
-  display: inline-block;
-  position: relative;
+#ui #scoreMultiplier.animate {
+  animation: multiplier 0.5s var(--easeOutQuad);
 }
 
 #end {
@@ -277,16 +276,11 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 @media only screen and (max-width: 991px) {
-  #ui #score {  
+  #ui #score,
+  #ui #scoreMultiplier {
     line-height: 4vw;
     font-size: 4vw;
     height: 4vw;
-  }
-
-  #ui .bestScore {
-    line-height: 2vw;
-    font-size: 2vw;
-    height: 2vw;
   }
 }
 
@@ -308,16 +302,11 @@ h1, h2, h3, h4, h5, h6, p, span {
     height: 12px;
   }
 
-  #ui #score {
+  #ui #score,
+  #ui #scoreMultiplier {
     line-height: 6vw;
     font-size: 6vw;
     height: 6vw;
-  }
-
-  #ui .bestScore {
-    line-height: 10px;
-    font-size: 10px;
-    height: 10px;
   }
 }
 
@@ -335,6 +324,28 @@ h1, h2, h3, h4, h5, h6, p, span {
   }
 
   100% {
+    opacity: 0;
+  }
+}
+
+@keyframes multiplier {
+  0% {
+    transform: translateY(250%) scale(0.25);
+    opacity: 0;
+  }
+
+  50% {
+    transform: translateY(0) scale(1.5);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translateY(0) scale(1.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0) scale(1.5);
     opacity: 0;
   }
 }

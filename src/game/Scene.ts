@@ -177,10 +177,8 @@ export default class extends Scene
 
     if (!this.autoplay && bricks > 1) {
       const maxDelay = repeat * 500;
-      const maxDuration = (repeat - 1) * 250 + 250;
-
-      duration = MathUtils.Between(duration, maxDuration);
       delay = MathUtils.Between(maxDelay - 500, maxDelay);
+      duration = MathUtils.Between(duration, duration + maxDelay / 2);
     }
 
     this.platforms.push(this.physics.add.staticGroup({
@@ -241,7 +239,7 @@ export default class extends Scene
     this.player.lookLeft = this.leftPlatform;
     this.score++;
 
-    !this.autoplay && document.dispatchEvent(
+    /* !this.autoplay && */ document.dispatchEvent(
       new CustomEvent('score:update', { detail: {
         multiplier: this.scoreMultiplier,
         score: this.score
@@ -367,6 +365,7 @@ export default class extends Scene
   }
 
   private get scoreMultiplier (): 0 | 1 | 2 {
-    return this.score < 15 ? 0 : this.score < 30 ? 1 : 2;
+    // return this.score < 15 ? 0 : this.score < 30 ? 1 : 2;
+    return this.score < 3 ? 0 : this.score < 6 ? 1 : 2;
   }
 };
