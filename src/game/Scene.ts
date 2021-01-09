@@ -163,10 +163,10 @@ export default class extends Scene
     const [ease, minDuration] = easing();
 
     const p = this.platforms.length;
-    const width = 64 * bricks;
-
-    let delay = 100;
+    const width = 64.0 * bricks;
     const repeat = bricks - 1;
+
+    let delay = ~~!this.autoplay * 100;
     let duration = (0.5 * bricks + 0.5) * minDuration;
 
     const y = this.scale.height - 160 - this.score * 64;
@@ -273,9 +273,10 @@ export default class extends Scene
   private resize (size: Scale.ScaleManager): void {
     const { width, height } = size;
     this.visibleStars = height * 3.75;
-    this.cameras.resize(width, height);
 
-    this.physics.world.bounds.setSize(width, height);
+    this.cameras.resize(width, height);
+    this.setPlatformsPosition(width, height);
+
     this.center = { x: width / 2, y: height / 2 };
     this.camera.resize(this.center.y - 182);
 
@@ -285,8 +286,8 @@ export default class extends Scene
     this.resetNextPlatform();
     this.setGround(width, height);
 
-    this.setPlatformsPosition(width, height);
     this.player.resize(width, height, this.score);
+    this.physics.world.bounds.setSize(width, height);
   }
 
   private setSky (width: number, height: number): void {

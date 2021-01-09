@@ -2,7 +2,7 @@ import { Math } from 'phaser';
 export type Easing = (v: number, overshoot?: number) => number;
 
 const EASINGS = [...new Map([
-  [Math.Easing.Linear,          1000],
+  [Math.Easing.Linear,          750],
 
   [Math.Easing.Quadratic.In,    750 ],
   [Math.Easing.Quadratic.Out,   1250],
@@ -32,24 +32,31 @@ const EASINGS = [...new Map([
   [Math.Easing.Circular.Out,    2000],
   [Math.Easing.Circular.InOut,  1000],
 
-  [Math.Easing.Back.In,         2000],
+  [Math.Easing.Back.In,         1750],
   [Math.Easing.Back.Out,        2500],
   [Math.Easing.Back.InOut,      1500]
 ]) as unknown as [Easing, number][]];
 
 export const clouds = [
-  [-0.95, -3.0, 0.85],
-  [-0.75, -3.0, 0.85],
-  [-0.55, -3.0, 0.85],
+  [ 0.65, -2.8, 0.95],
 
-  [0.45,  -3.2, 0.95],
-  [0.25,  -3.2, 0.95],
+  [-0.65, -3.2, 0.90],
+  [-0.45, -3.2, 0.90],
 
-  [-0.2,  -3.3, 0.90],
+  [ 0.20, -3.6, 0.85],
+  [ 0.00, -3.6, 0.85],
 
-  [0.85,  -3.5, 0.75],
-  [0.65,  -3.5, 0.75],
-  [0.45,  -3.5, 0.75]
+  [-0.75, -4.0, 0.85],
+  [-0.55, -4.0, 0.85],
+  [-0.35, -4.0, 0.85],
+
+  [ 0.65, -4.3, 0.80],
+  [ 0.45, -4.3, 0.80],
+  [ 0.25, -4.3, 0.80],
+
+  [-0.30, -4.7, 0.75],
+  [-0.10, -4.7, 0.75],
+  [ 0.10, -4.7, 0.75]
 ];
 
 export const easing = (): [Easing, number] =>
