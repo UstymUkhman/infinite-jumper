@@ -1,16 +1,17 @@
-declare module '*.svg';
-declare module '*.png';
-declare module '*.jpg';
+declare interface PromptEvent extends Event {
+  readonly platforms: Array<string>;
 
-declare module '*.json' {
-  const value: JSON
-  export default value
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed',
+    platform: string
+  }>;
+
+  prompt(): Promise<void>;
 }
 
-declare module 'phaser/types';
-declare module 'phaser3-rex-plugins/*';
-
-declare const PRODUCTION: boolean;
+declare interface WindowEventMap {
+  'beforeinstallprompt': PromptEvent;
+}
 
 declare type SoundFade = {
   fadeIn: (
@@ -28,3 +29,16 @@ declare type SoundFade = {
     destroy?: boolean
   ) => void
 };
+
+declare const PRODUCTION: boolean;
+
+declare module 'phaser3-rex-plugins/*';
+declare module 'phaser/types';
+
+declare module '*.json' {
+  export default JSON
+}
+
+declare module '*.jpg';
+declare module '*.png';
+declare module '*.svg';

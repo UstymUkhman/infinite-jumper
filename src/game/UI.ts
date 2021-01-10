@@ -3,6 +3,7 @@ export default class
   private multiplyScore = document.getElementById('scoreMultiplier')!;
   private currentScore = document.getElementById('currentScore')!;
 
+  private downloadButton = document.getElementById('download')!;
   private newScore = document.getElementById('newBestScore')!;
   private bestScore = document.getElementById('bestScore')!;
 
@@ -12,16 +13,20 @@ export default class
   private end = document.getElementById('end')!;
   private ui = document.getElementById('ui')!;
 
-  private start: () => void;
+  private installPrompt: (event: PromptEvent) => void;
   private update: (event: CustomEventInit) => void;
-  private restart: () => void;
-
-  private startEvent: CustomEvent;
-  private restartEvent: CustomEvent;
+  private download: (event: MouseEvent) => void;
 
   private savedScore = this.savedBestScore;
+  private restartEvent: CustomEvent;
+  private startEvent: CustomEvent;
+  private prompt?: PromptEvent;
+
   private scoreMultiplier = 0;
   private lastMultiplier = 0;
+
+  private restart: () => void;
+  private start: () => void;
 
   private bonusTime?: number;
   private callback?: number;
@@ -30,10 +35,15 @@ export default class
     this.start = this.onStart.bind(this);
     this.update = this.onUpdate.bind(this);
     this.restart = this.onRestart.bind(this);
+    this.download = this.onDownload.bind(this);
 
     this.startEvent = new CustomEvent('game:start');
     this.restartEvent = new CustomEvent('game:restart');
+    this.installPrompt = this.onInstallPrompt.bind(this);
+
     document.addEventListener('score:update', this.update);
+    this.downloadButton.addEventListener('click', this.download);
+    window.addEventListener('beforeinstallprompt', this.installPrompt);
   }
 
   public playIntro (callback: () => void): void {
@@ -86,6 +96,22 @@ export default class
     this.ui.classList.remove('fadeIn');
     this.end.classList.add('fadeIn');
     clearTimeout(this.bonusTime);
+  }
+
+  private onInstallPrompt (event: PromptEvent): void {
+    this.prompt = event;
+  }
+
+  private onDownload (event: MouseEvent): void {
+    this.prompt?.prompt();
+
+    this.prompt?.userChoice.then(choice => {
+      choice.outcome === 'accepted' && (
+        event.target as HTMLButtonElement
+      ).classList.add('hidden');
+
+      this.prompt = undefined;
+    });
   }
 
   private onRestart (): void {
