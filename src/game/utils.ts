@@ -34,7 +34,7 @@ const EASINGS = [...new Map([
 
   [Math.Easing.Back.In,         1750],
   [Math.Easing.Back.Out,        2500],
-  [Math.Easing.Back.InOut,      2000]  // 1500
+  [Math.Easing.Back.InOut,      1500]
 ]) as unknown as [Easing, number][]];
 
 export const clouds = [

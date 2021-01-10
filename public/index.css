@@ -167,8 +167,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 1;
 }
 
-#ui #score,
-#ui #scoreMultiplier {
+#ui .score {
   position: absolute;
   line-height: 3vw;
 
@@ -183,6 +182,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   top: 2.5vh;
 }
 
+#ui #newBestScore,
 #ui #scoreMultiplier {
   transform-origin: center;
   opacity: 0;
@@ -190,7 +190,11 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 #ui #scoreMultiplier.animate {
-  animation: multiplier 0.5s var(--easeOutQuad);
+  animation: score 0.5s var(--easeOutQuad);
+}
+
+#ui #newBestScore.animate {
+  animation: bestScore 1s var(--easeOutQuad);
 }
 
 #end {
@@ -276,8 +280,7 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 @media only screen and (max-width: 991px) {
-  #ui #score,
-  #ui #scoreMultiplier {
+  #ui .score {
     line-height: 4vw;
     font-size: 4vw;
     height: 4vw;
@@ -302,8 +305,7 @@ h1, h2, h3, h4, h5, h6, p, span {
     height: 12px;
   }
 
-  #ui #score,
-  #ui #scoreMultiplier {
+  #ui .score {
     line-height: 6vw;
     font-size: 6vw;
     height: 6vw;
@@ -328,7 +330,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   }
 }
 
-@keyframes multiplier {
+@keyframes score {
   0% {
     transform: translateY(250%) scale(0.25);
     opacity: 0;
@@ -346,6 +348,43 @@ h1, h2, h3, h4, h5, h6, p, span {
 
   100% {
     transform: translateY(0) scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes bestScore {
+  0% {
+    transform: translateY(250%) scale(0.25) rotate(0deg);
+    opacity: 0;
+  }
+
+  40% {
+    transform: translateY(0) scale(0.85) rotate(0deg);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translateY(0) scale(1) rotate(-15deg);
+    opacity: 1;
+  }
+
+  65% {
+    transform: translateY(0) scale(1) rotate(15deg);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translateY(0) scale(1) rotate(-15deg);
+    opacity: 1;
+  }
+
+  90% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
     opacity: 0;
   }
 }

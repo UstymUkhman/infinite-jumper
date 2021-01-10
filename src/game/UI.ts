@@ -2,6 +2,8 @@ export default class
 {
   private multiplyScore = document.getElementById('scoreMultiplier')!;
   private currentScore = document.getElementById('currentScore')!;
+
+  private newScore = document.getElementById('newBestScore')!;
   private bestScore = document.getElementById('bestScore')!;
 
   private score = document.getElementById('score')!;
@@ -54,7 +56,7 @@ export default class
     this.scoreMultiplier += multiplier;
 
     const currentScore = score + this.scoreMultiplier;
-    const bestScore = Math.max(currentScore, this.savedScore).toString();
+    this.score.textContent = currentScore;
 
     if (this.lastMultiplier !== multiplier) {
       this.bonusTime = setTimeout(this.onBonusEnd.bind(this), 2000);
@@ -64,8 +66,10 @@ export default class
       this.lastMultiplier = multiplier;
     }
 
-    localStorage.setItem('Best Score', bestScore);
-    this.score.textContent = currentScore;
+    if (this.savedScore < currentScore) {
+      localStorage.setItem('Best Score', currentScore);
+      this.newScore.classList.add('animate');
+    }
   }
 
   private onBonusEnd (): void {
