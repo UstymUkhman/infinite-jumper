@@ -3,9 +3,12 @@ export default class
   private multiplyScore = document.getElementById('scoreMultiplier')!;
   private currentScore = document.getElementById('currentScore')!;
 
-  private downloadButton = document.getElementById('download')!;
+  // private downloadButton = document.getElementById('download')!;
   private newScore = document.getElementById('newBestScore')!;
   private bestScore = document.getElementById('bestScore')!;
+
+  private pauseScreen = document.getElementById('pause')!;
+  private menuButton = document.getElementById('menu')!;
 
   private score = document.getElementById('score')!;
   private intro = document.getElementById('intro')!;
@@ -15,10 +18,12 @@ export default class
 
   private installPrompt: (event: PromptEvent) => void;
   private update: (event: CustomEventInit) => void;
+  private toggleMenu: (event: MouseEvent) => void;
   private download: (event: MouseEvent) => void;
 
   private savedScore = this.savedBestScore;
   private restartEvent: CustomEvent;
+  private pauseEvent: CustomEvent;
   private startEvent: CustomEvent;
   private prompt?: PromptEvent;
 
@@ -31,18 +36,24 @@ export default class
   private bonusTime?: number;
   private callback?: number;
 
+  private gameOver = false;
+  private pause = false;
+
   public constructor () {
     this.start = this.onStart.bind(this);
     this.update = this.onUpdate.bind(this);
     this.restart = this.onRestart.bind(this);
     this.download = this.onDownload.bind(this);
+    this.toggleMenu = this.onMenuToggle.bind(this);
 
     this.startEvent = new CustomEvent('game:start');
+    this.pauseEvent = new CustomEvent('game:pause');
     this.restartEvent = new CustomEvent('game:restart');
     this.installPrompt = this.onInstallPrompt.bind(this);
 
     document.addEventListener('score:update', this.update);
-    this.downloadButton.addEventListener('click', this.download);
+    this.menuButton.addEventListener('click', this.toggleMenu);
+    // this.downloadButton.addEventListener('click', this.download);
     window.addEventListener('beforeinstallprompt', this.installPrompt);
   }
 
@@ -90,16 +101,41 @@ export default class
     this.end.addEventListener('click', this.restart);
     setTimeout(() => this.end.classList.add('interactable'), 1250);
 
-    this.bestScore.textContent = this.savedScore.toString();
+    this.bestScore.textContent = this.savedBestScore.toString();
     this.currentScore.textContent = this.score.textContent;
+
+    this.pauseScreen.classList.remove('fadeIn');
+    this.newScore.classList.remove('animate');
+    this.menuButton.classList.remove('open');
 
     this.ui.classList.remove('fadeIn');
     this.end.classList.add('fadeIn');
+
     clearTimeout(this.bonusTime);
+    this.gameOver = true;
   }
 
   private onInstallPrompt (event: PromptEvent): void {
     this.prompt = event;
+  }
+
+  private onMenuToggle (event: MouseEvent): void {
+    if (this.gameOver) return;
+    this.pause = !this.pause;
+
+    setTimeout(() =>
+      document.dispatchEvent(this.pauseEvent)
+    , ~~!this.pause * 500);
+
+    if (!this.pause) {
+      this.pauseScreen.classList.remove('fadeIn');
+      this.menuButton.classList.remove('open');
+    }
+
+    else {
+      this.pauseScreen.classList.add('fadeIn');
+      this.menuButton.classList.add('open');
+    }
   }
 
   private onDownload (event: MouseEvent): void {
@@ -126,6 +162,7 @@ export default class
     this.score.textContent = '0';
     this.scoreMultiplier = 0;
     this.lastMultiplier = 0;
+    this.gameOver = false;
   }
 
   private get savedBestScore (): number {

@@ -25,7 +25,7 @@ export default class extends Scene
 
   private gamePaused = true;
   private gameOver = false;
-  private autoplay = true;
+  private autoplay = false;
 
   private camera!: Camera;
   private player!: Player;
@@ -149,12 +149,26 @@ export default class extends Scene
 
   private createEventListeners (): void {
     this.scale.on('resize', this.resize, this);
-    this.input.on('pointerdown', this.player.jump.bind(this.player));
     document.addEventListener('game:restart', this.restart.bind(this));
 
     document.addEventListener('game:start', () => {
       this.music.start();
       this.start();
+    });
+
+    document.addEventListener('game:pause', () => {
+      this.gamePaused = !this.gamePaused;
+
+      this.autoplay
+        ? this.restartNextPlatform()
+
+        : this.gamePaused
+          ? this.platformAnimation?.pause()
+          : this.platformAnimation?.resume();
+    });
+
+    this.input.on('pointerdown', () => {
+      !this.autoplay && this.player.jump();
     });
   }
 
@@ -198,6 +212,11 @@ export default class extends Scene
       targets: this.platforms[p].getChildren(),
       duration, delay, ease
     });
+  }
+
+  private restartNextPlatform (): void {
+    this.platformAnimation?.stop();
+    !this.gameOver && this.createNextPlatform();
   }
 
   private nextPlatformPosition (tween: Tweens.Tween, ease: Easing): number {
@@ -358,9 +377,7 @@ export default class extends Scene
     if (this.platformAnimation && this.platformAnimation.isPlaying()) {
       this.platforms[this.platforms.length - 1].clear(true, true);
       this.platforms = this.platforms.slice(0, -1);
-
-      this.platformAnimation.stop();
-      !this.gameOver && this.createNextPlatform();
+      this.restartNextPlatform();
     }
   }
 

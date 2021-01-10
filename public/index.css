@@ -86,23 +86,26 @@ h1, h2, h3, h4, h5, h6, p, span {
   background-color: var(--overlayBackground);
 }
 
+#intro h1,
+#pause .content h1 {
+  line-height: 6vw;
+  font-size: 6vw;
+  height: 6vw;
+
+  width: 100%;
+  opacity: 0;
+}
+
 #intro h1 {
   animation: title 2s var(--easeInQuad) 1s;
   transform: translateY(-50%);
   position: absolute;
-  
-  line-height: 6vw;
-  font-size: 6vw;
-  
-  height: 6vw;
-  width: 100%;
-  opacity: 0;
 
   top: 50%;
   left: 0;
 }
 
-.description {
+.content {
   transform: translateY(-50%);
   padding-top: 0.5vw;
   position: absolute;
@@ -114,7 +117,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   left: 0;
 }
 
-.description span.tap {
+.content span.tap {
   line-height: 2vw;
   font-size: 2vw;
 
@@ -123,11 +126,11 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 0;
 }
 
-#intro .description {
+#intro .content {
   height: 15vw;
 }
 
-#intro .description h2 {
+#intro .content h2 {
   transition: opacity 1s var(--easeInOutQuad) 3.5s;
 
   line-height: 4vw;
@@ -137,14 +140,10 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 0;
 }
 
-#intro .description span.tap {
+#intro .content span.tap {
   transition: opacity 0.5s var(--easeInOutQuad) 7.5s;
   position: absolute;
   bottom: 0.5vw;
-}
-
-#intro.start {
-  background-color: var(--overlayBackground);
 }
 
 #intro.start.fadeOut {
@@ -152,8 +151,8 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 0;
 }
 
-#intro.start .description h2,
-#intro.start .description span.tap {
+#intro.start .content h2,
+#intro.start .content span.tap {
   opacity: 1;
 }
 
@@ -182,6 +181,58 @@ h1, h2, h3, h4, h5, h6, p, span {
   top: 2.5vh;
 }
 
+#ui #menu {
+  background-image: url(./assets/image/button.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  pointer-events: all;
+  position: absolute;
+
+  cursor: pointer;
+  display: block;
+  outline: none;
+
+  right: 0.55vh;
+  top: 0.55vh;
+
+  height: 64px;
+  width: 64px;
+  z-index: 1;
+}
+
+#ui #menu .line {
+  transition: transform 0.5s var(--easeInOutQuad);
+  transform: translateY(0%) rotate(0deg);
+
+  background-color: #fff;
+  transform-origin: center;
+
+  position: absolute;
+  display: block;
+
+  height: 2px;
+  width: 70%;
+  left: 15%;
+}
+
+#ui #menu .line:first-child {
+  top: 33%;
+}
+
+#ui #menu .line:last-child {
+  bottom: 33%;
+}
+
+#ui #menu.open .line:first-child {
+  transform: translateY(9px) rotate(-45deg);
+}
+
+#ui #menu.open .line:last-child {
+  transform: translateY(-9px) rotate(45deg);
+}
+
 #ui #newBestScore,
 #ui #scoreMultiplier {
   transform-origin: center;
@@ -197,7 +248,11 @@ h1, h2, h3, h4, h5, h6, p, span {
   animation: bestScore 1s var(--easeOutQuad);
 }
 
-#end {
+#pause {
+  transition: opacity 0.5s;
+}
+
+#pause, #end {
   background-color: var(--overlayBackground);
   pointer-events: none;
   opacity: 0;
@@ -208,11 +263,25 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 1;
 }
 
+#pause .content h1 {
+  transition: opacity 0.5s;
+}
+
+#pause.fadeIn {
+  pointer-events: all;
+  opacity: 1;
+}
+
+#pause.fadeIn .content h1 {
+  transition-delay: 0.25s;
+  opacity: 1;
+}
+
 #end.interactable {
   pointer-events: all;
 }
 
-#end .description h2 {
+#end .content h2 {
   line-height: 10vw;
   font-size: 10vw;
 
@@ -220,7 +289,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 0;
 }
 
-#end .description .score {
+#end .content .score {
   justify-content: space-between;
   align-content: center;
   flex-direction: row;
@@ -234,7 +303,7 @@ h1, h2, h3, h4, h5, h6, p, span {
   width: 90%;
 }
 
-#end .description .score span {
+#end .content .score span {
   margin-bottom: 3vh;
   line-height: 3vw;
 
@@ -243,38 +312,40 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 0;  
 }
 
-#end.fadeIn .description h2 {
+#end.fadeIn .content h2 {
   transition: opacity 0.5s var(--easeInOutQuad) 1s;
   opacity: 1;
 }
 
-#end.fadeIn .description .score .currentScore {
+#end.fadeIn .content .score .currentScore {
   transition: opacity 0.5s var(--easeInOutQuad) 1.25s;
   opacity: 1;
 }
 
-#end.fadeIn .description .score #currentScore {
+#end.fadeIn .content .score #currentScore {
   transition: opacity 0.5s var(--easeInOutQuad) 1.5s;
   opacity: 1;
 }
 
-#end.fadeIn .description .score .bestScore {
+#end.fadeIn .content .score .bestScore {
   transition: opacity 0.5s var(--easeInOutQuad) 1.75s;
   opacity: 1;
 }
 
-#end.fadeIn .description .score #bestScore {
+#end.fadeIn .content .score #bestScore {
   transition: opacity 0.5s var(--easeInOutQuad) 2s;
   opacity: 1;
 }
 
-#end.fadeIn .description span.tap {
+#end.fadeIn .content span.tap {
   transition: opacity 0.5s var(--easeInOutQuad) 2.25s;
   opacity: 1;
 }
 
+/* @media all and (display-mode: fullscreen), (display-mode: standalone) {} */
+
 @media only screen and (orientation: landscape) {
-  #intro .description {
+  #intro .content {
     height: 10vw;
   }
 }
@@ -288,27 +359,43 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 @media only screen and (max-width: 480px) {
-  #end .description .score {
-    max-width: 325px;
+  #ui #menu.open .line:first-child {
+    transform: translateY(4px) rotate(-45deg);
   }
 
-  #end .description .score span {
+  #ui #menu.open .line:last-child {
+    transform: translateY(-4px) rotate(45deg);
+  }
+
+  #end .content .score span {
     line-height: 16px;
     font-size: 16px;
     height: 16px;
   }
 
-  #end .description span.tap,
-  #intro .description span.tap {  
+  #end .content span.tap,
+  #intro .content span.tap {  
     line-height: 12px;
     font-size: 12px;
     height: 12px;
+  }
+
+  #end .content .score {
+    max-width: 325px;
   }
 
   #ui .score {
     line-height: 6vw;
     font-size: 6vw;
     height: 6vw;
+  }
+
+  #ui #menu {
+    height: 32px;
+    width: 32px;
+
+    right: 1.1vh;
+    top: 1.1vh;
   }
 }
 
