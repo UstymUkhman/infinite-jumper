@@ -30,12 +30,18 @@ export default class
     this.artist = this.artists[this.track];
 
     const track = this.currentTrack;
-    const fade = track.duration * 1e3 - 1e3;
+    const fade = track.duration * 1e3 - 500;
 
-    this.music.fadeIn(this.scene, track, 1e3, 0.1);
+    this.music.fadeIn(this.scene, track, 500, 0.1);
+
+    document.dispatchEvent(
+      new CustomEvent('new:song', { detail: {
+        song: this.songTitle
+      }})
+    );
 
     setTimeout(() => {
-      this.music.fadeOut(this.scene, track, 1e3, false);
+      this.music.fadeOut(this.scene, track, 500, false);
       this.playNextTrack();
     }, fade);
   }
@@ -48,6 +54,22 @@ export default class
 
   private get currentTrack (): Sound.BaseSound {
     return this.tracks[this.currentArtist];
+  }
+
+  private get songTitle (): string | undefined {
+    switch (this.track) {
+      case Artist.VanHalen:
+        return 'Van Halen - Jump';
+
+      case Artist.Queen:
+        return 'Queen - Don\'t Stop Me Now';
+
+      case Artist.HouseOfPain:
+        return 'House Of Pain - Jump Around';
+
+      default:
+        return undefined;
+    }
   }
 
   private get currentArtist (): number {

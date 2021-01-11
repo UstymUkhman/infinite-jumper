@@ -3,11 +3,12 @@ export default class
   private multiplyScore = document.getElementById('scoreMultiplier')!;
   private currentScore = document.getElementById('currentScore')!;
 
-  // private downloadButton = document.getElementById('download')!;
+  private downloadButton = document.getElementById('download');
   private newScore = document.getElementById('newBestScore')!;
   private bestScore = document.getElementById('bestScore')!;
 
   private pauseScreen = document.getElementById('pause')!;
+  private currentSong = document.getElementById('song')!;
   private menuButton = document.getElementById('menu')!;
 
   private score = document.getElementById('score')!;
@@ -17,14 +18,15 @@ export default class
   private ui = document.getElementById('ui')!;
 
   private installPrompt: (event: PromptEvent) => void;
+  private setTrack: (event: CustomEventInit) => void;
   private update: (event: CustomEventInit) => void;
   private toggleMenu: (event: MouseEvent) => void;
   private download: (event: MouseEvent) => void;
 
   private savedScore = this.savedBestScore;
-  private restartEvent: CustomEvent;
-  private pauseEvent: CustomEvent;
-  private startEvent: CustomEvent;
+  private restartEvent: CustomEvent<void>;
+  private pauseEvent: CustomEvent<void>;
+  private startEvent: CustomEvent<void>;
   private prompt?: PromptEvent;
 
   private scoreMultiplier = 0;
@@ -43,18 +45,22 @@ export default class
     this.start = this.onStart.bind(this);
     this.update = this.onUpdate.bind(this);
     this.restart = this.onRestart.bind(this);
+    this.setTrack = this.setNewTrack.bind(this);
+
     this.download = this.onDownload.bind(this);
     this.toggleMenu = this.onMenuToggle.bind(this);
-
-    this.startEvent = new CustomEvent('game:start');
-    this.pauseEvent = new CustomEvent('game:pause');
-    this.restartEvent = new CustomEvent('game:restart');
     this.installPrompt = this.onInstallPrompt.bind(this);
 
-    document.addEventListener('score:update', this.update);
-    this.menuButton.addEventListener('click', this.toggleMenu);
-    // this.downloadButton.addEventListener('click', this.download);
     window.addEventListener('beforeinstallprompt', this.installPrompt);
+    this.downloadButton?.addEventListener('click', this.download);
+    this.menuButton.addEventListener('click', this.toggleMenu);
+
+    document.addEventListener('score:update', this.update);
+    document.addEventListener('new:song', this.setTrack);
+
+    this.restartEvent = new CustomEvent('game:restart');
+    this.pauseEvent = new CustomEvent('game:pause');
+    this.startEvent = new CustomEvent('game:start');
   }
 
   public playIntro (callback: () => void): void {
@@ -91,6 +97,10 @@ export default class
       localStorage.setItem('Best Score', currentScore);
       this.newScore.classList.add('animate');
     }
+  }
+
+  public setNewTrack (event: CustomEventInit): void {
+    this.currentSong.textContent = event.detail.song;
   }
 
   private onBonusEnd (): void {

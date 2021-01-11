@@ -159,12 +159,15 @@ export default class extends Scene
     document.addEventListener('game:pause', () => {
       this.gamePaused = !this.gamePaused;
 
-      this.autoplay
-        ? this.restartNextPlatform()
+      if (this.gamePaused) {
+        this.platformAnimation?.pause();
+      }
 
-        : this.gamePaused
-          ? this.platformAnimation?.pause()
-          : this.platformAnimation?.resume();
+      else {
+        // Only if autoplay was enabled durring this pause:
+        // this.restartNextPlatform();
+        this.platformAnimation?.resume();
+      }
     });
 
     this.input.on('pointerdown', () => {

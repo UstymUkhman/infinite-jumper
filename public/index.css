@@ -267,6 +267,24 @@ h1, h2, h3, h4, h5, h6, p, span {
   transition: opacity 0.5s;
 }
 
+#pause .song {
+  text-align: center;
+  position: absolute;
+  
+  line-height: 1vw;
+  font-size: 1vw;
+
+  display: block;
+  bottom: 2.5vh;
+  
+  height: 1.6vw;
+  width: 100%;
+}
+
+#pause .song sub {
+  display: inline-block;
+}
+
 #pause.fadeIn {
   pointer-events: all;
   opacity: 1;
@@ -356,6 +374,11 @@ h1, h2, h3, h4, h5, h6, p, span {
     font-size: 4vw;
     height: 4vw;
   }
+
+  #pause .song {
+    font-size: 1.5vw;
+    height: 2.4vw;
+  }
 }
 
 @media only screen and (max-width: 480px) {
@@ -396,6 +419,12 @@ h1, h2, h3, h4, h5, h6, p, span {
 
     right: 1.1vh;
     top: 1.1vh;
+  }
+
+  #pause .song {
+    font-size: 10px;
+    height: 16px;
+    bottom: 2vh;
   }
 }
 
