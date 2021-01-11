@@ -30,6 +30,7 @@ export default class extends Scene
   private camera!: Camera;
   private player!: Player;
 
+  private playerScore = 0;
   private music!: Music;
   private ui = new UI;
   private score = 0;
@@ -112,6 +113,7 @@ export default class extends Scene
     this.resize(this.scale);
 
     this.gameOver = false;
+    this.playerScore = 0;
     this.player.reset();
 
     this.score = 0;
@@ -150,13 +152,9 @@ export default class extends Scene
   private createEventListeners (): void {
     this.scale.on('resize', this.resize, this);
     document.addEventListener('game:restart', this.restart.bind(this));
+    this.input.on('pointerdown', () => !this.autoplay && this.player.jump());
 
-    document.addEventListener('game:start', () => {
-      this.music.start();
-      this.start();
-    });
-
-    document.addEventListener('game:pause', () => {
+    document.addEventListener('game:pause', (event: CustomEventInit) => {
       this.gamePaused = !this.gamePaused;
 
       if (this.gamePaused) {
@@ -164,14 +162,19 @@ export default class extends Scene
       }
 
       else {
-        // Only if autoplay was enabled durring this pause:
-        // this.restartNextPlatform();
-        this.platformAnimation?.resume();
+        const { autoplay } = event.detail;
+
+        !this.autoplay && autoplay
+          ? this.restartNextPlatform()
+          : this.platformAnimation?.resume();
+
+        this.autoplay = autoplay;
       }
     });
 
-    this.input.on('pointerdown', () => {
-      !this.autoplay && this.player.jump();
+    document.addEventListener('game:start', () => {
+      this.music.start();
+      this.start();
     });
   }
 
@@ -259,20 +262,23 @@ export default class extends Scene
   private onPlatformLanding (): void {
     this.leftPlatform = MathUtils.Between(0, 1) < 1;
     this.player.lookLeft = this.leftPlatform;
-    this.score++;
 
-    !this.autoplay && document.dispatchEvent(
-      new CustomEvent('score:update', { detail: {
-        multiplier: this.scoreMultiplier,
-        score: this.score
-      }})
-    );
-
+    this.camera.zoomIn(++this.score);
     this.platformAnimation?.stop();
-    this.camera.zoomIn(this.score);
-
-    this.createNextPlatform();
     this.landing.play();
+
+    if (!this.autoplay) {
+      this.playerScore = this.score;
+
+      document.dispatchEvent(
+        new CustomEvent('score:update', { detail: {
+          multiplier: this.scoreMultiplier,
+          score: this.score
+        }})
+      );
+    }
+
+    !this.gamePaused && this.createNextPlatform();
   }
 
   private onGameOver (): void {
@@ -385,6 +391,6 @@ export default class extends Scene
   }
 
   private get scoreMultiplier (): 0 | 1 | 2 {
-    return this.score < 15 ? 0 : this.score < 30 ? 1 : 2;
+    return this.playerScore < 15 ? 0 : this.playerScore < 30 ? 1 : 2;
   }
 };

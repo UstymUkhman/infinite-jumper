@@ -25,7 +25,6 @@ export default class
 
   private savedScore = this.savedBestScore;
   private restartEvent: CustomEvent<void>;
-  private pauseEvent: CustomEvent<void>;
   private startEvent: CustomEvent<void>;
   private prompt?: PromptEvent;
 
@@ -39,6 +38,7 @@ export default class
   private callback?: number;
 
   private gameOver = false;
+  private autoplay = false;
   private pause = false;
 
   public constructor () {
@@ -59,7 +59,6 @@ export default class
     document.addEventListener('new:song', this.setTrack);
 
     this.restartEvent = new CustomEvent('game:restart');
-    this.pauseEvent = new CustomEvent('game:pause');
     this.startEvent = new CustomEvent('game:start');
   }
 
@@ -134,8 +133,10 @@ export default class
     this.pause = !this.pause;
 
     setTimeout(() =>
-      document.dispatchEvent(this.pauseEvent)
-    , ~~!this.pause * 500);
+      document.dispatchEvent(new CustomEvent('game:pause', {
+        detail: { autoplay: this.autoplay }
+      })
+    ), ~~!this.pause * 500);
 
     if (!this.pause) {
       this.pauseScreen.classList.remove('fadeIn');
