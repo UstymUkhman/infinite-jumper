@@ -86,20 +86,17 @@ h1, h2, h3, h4, h5, h6, p, span {
   background-color: var(--overlayBackground);
 }
 
-#intro h1,
-#pause .content h1 {
+#intro h1 {
+  animation: title 2s var(--easeInQuad) 1s;
+  transform: translateY(-50%);
+  position: absolute;
+
   line-height: 6vw;
   font-size: 6vw;
   height: 6vw;
 
   width: 100%;
   opacity: 0;
-}
-
-#intro h1 {
-  animation: title 2s var(--easeInQuad) 1s;
-  transform: translateY(-50%);
-  position: absolute;
 
   top: 50%;
   left: 0;
@@ -183,16 +180,18 @@ h1, h2, h3, h4, h5, h6, p, span {
 
 #ui #menu {
   background-image: url(./assets/image/button.png);
+  background-color: transparent;
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
 
   pointer-events: all;
   position: absolute;
-
   cursor: pointer;
+
   display: block;
   outline: none;
+  border: none;
 
   right: 0.55vh;
   top: 0.55vh;
@@ -265,20 +264,96 @@ h1, h2, h3, h4, h5, h6, p, span {
 
 #pause .content h1 {
   transition: opacity 0.5s;
+
+  line-height: 4vw;
+  font-size: 4vw;
+  height: 4vw;
+
+  width: 100%;
+  opacity: 0;
+}
+
+#pause .content .options {
+  margin: 60px auto;
+  max-width: 500px;
+  width: 75vw;
+}
+
+#pause .content .options .option {
+  justify-content: space-between;
+  transition: opacity 0.5s;
+
+  align-content: center;
+  flex-direction: row;
+
+  margin-bottom: 35px;
+  align-items: center;
+
+  position: relative;
+  flex-wrap: nowrap;
+
+  display: flex;
+  width: 100%;
+  opacity: 0;
+}
+
+#pause .content .options .option:last-child {
+  margin-bottom: 0;
+}
+
+#pause .content #download {
+  transition: background-color 0.25s, opacity 0.5s 1.25s;
+
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  border-left: 2px solid #C74B0C;
+  border-top: 2px solid #C74B0C;
+
+  font-family: 'Press Start 2P';
+  background-color: #FB9737;
+
+  letter-spacing: 0.2vw;
+  position: relative;
+  padding-top: 5px;
+
+  max-height: 67px;
+  max-width: 300px;
+
+  color: #FFFFFF;
+  font-size: 26px;
+  cursor: pointer;
+
+  display: block;
+  margin: 0 auto;
+  outline: none;
+
+  height: 10vw;
+  width: 45vw;
+  opacity: 0;
+}
+
+#pause .content #download:hover {
+  background-color: #E17122;
+}
+
+#pause .content #download:active {
+  background-color: #C74B0C;
 }
 
 #pause .song {
+  transition: opacity 0.5s;
   text-align: center;
   position: absolute;
-  
+
   line-height: 1vw;
   font-size: 1vw;
 
   display: block;
-  bottom: 2.5vh;
-  
   height: 1.6vw;
   width: 100%;
+
+  bottom: 2vh;
+  opacity: 0;
 }
 
 #pause .song sub {
@@ -293,6 +368,28 @@ h1, h2, h3, h4, h5, h6, p, span {
 #pause.fadeIn .content h1 {
   transition-delay: 0.25s;
   opacity: 1;
+}
+
+#pause.fadeIn .song,
+#pause.fadeIn .content #download,
+#pause.fadeIn .content .options .option {
+  opacity: 1;
+}
+
+#pause.fadeIn .content .options .option.music {
+  transition-delay: 0.5s;
+}
+
+#pause.fadeIn .content .options .option.sounds {
+  transition-delay: 0.75s;
+}
+
+#pause.fadeIn .content .options .option.autoplay {
+  transition-delay: 1s;
+}
+
+#pause.fadeIn .song {
+  transition-delay: 1.5s;
 }
 
 #end.interactable {
@@ -360,7 +457,11 @@ h1, h2, h3, h4, h5, h6, p, span {
   opacity: 1;
 }
 
-/* @media all and (display-mode: fullscreen), (display-mode: standalone) {} */
+@media all and (display-mode: fullscreen), (display-mode: standalone) {
+  #pause .content #download {
+    display: none !important;
+  }
+}
 
 @media only screen and (orientation: landscape) {
   #intro .content {
@@ -373,6 +474,12 @@ h1, h2, h3, h4, h5, h6, p, span {
     line-height: 4vw;
     font-size: 4vw;
     height: 4vw;
+  }
+
+  #pause .content h1 {  
+    line-height: 6vw;
+    font-size: 6vw;
+    height: 6vw;
   }
 
   #pause .song {
@@ -421,10 +528,15 @@ h1, h2, h3, h4, h5, h6, p, span {
     top: 1.1vh;
   }
 
+  #pause .content #download {
+    padding-top: 0px;
+    line-height: 9vw;
+    font-size: 4vw;
+  }
+
   #pause .song {
     font-size: 10px;
     height: 16px;
-    bottom: 2vh;
   }
 }
 

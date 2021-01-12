@@ -17,7 +17,9 @@ export default class
   private end = document.getElementById('end')!;
   private ui = document.getElementById('ui')!;
 
-  private installPrompt: (event: PromptEvent) => void;
+  // private android = /android/i.test(navigator.userAgent);
+
+  private installPrompt?: (event: PromptEvent) => void;
   private setTrack: (event: CustomEventInit) => void;
   private update: (event: CustomEventInit) => void;
   private toggleMenu: (event: MouseEvent) => void;
@@ -45,21 +47,23 @@ export default class
     this.start = this.onStart.bind(this);
     this.update = this.onUpdate.bind(this);
     this.restart = this.onRestart.bind(this);
-    this.setTrack = this.setNewTrack.bind(this);
 
     this.download = this.onDownload.bind(this);
+    this.setTrack = this.setNewTrack.bind(this);
     this.toggleMenu = this.onMenuToggle.bind(this);
-    this.installPrompt = this.onInstallPrompt.bind(this);
 
-    window.addEventListener('beforeinstallprompt', this.installPrompt);
-    this.downloadButton?.addEventListener('click', this.download);
-    this.menuButton.addEventListener('click', this.toggleMenu);
-
-    document.addEventListener('score:update', this.update);
-    document.addEventListener('new:song', this.setTrack);
-
-    this.restartEvent = new CustomEvent('game:restart');
     this.startEvent = new CustomEvent('game:start');
+    this.restartEvent = new CustomEvent('game:restart');
+
+    document.addEventListener('new:song', this.setTrack);
+    document.addEventListener('score:update', this.update);
+    this.menuButton.addEventListener('click', this.toggleMenu);
+    this.downloadButton?.addEventListener('click', this.download);
+
+    // if (!this.android) {
+    this.installPrompt = this.onInstallPrompt.bind(this);
+    window.addEventListener('beforeinstallprompt', this.installPrompt);
+    // }
   }
 
   public playIntro (callback: () => void): void {
@@ -150,15 +154,20 @@ export default class
   }
 
   private onDownload (event: MouseEvent): void {
+    // if (this.android) {
+    //   window.open('https://play.google.com/store');
+    // } else {
     this.prompt?.prompt();
 
     this.prompt?.userChoice.then(choice => {
-      choice.outcome === 'accepted' && (
-        event.target as HTMLButtonElement
-      ).classList.add('hidden');
+      if (choice.outcome === 'accepted') {
+        this.downloadButton?.classList.add('hidden');
+        delete this.installPrompt;
+      }
 
-      this.prompt = undefined;
+      delete this.prompt;
     });
+    // }
   }
 
   private onRestart (): void {

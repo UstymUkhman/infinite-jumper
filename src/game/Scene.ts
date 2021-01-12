@@ -383,14 +383,14 @@ export default class extends Scene
   }
 
   private resetNextPlatform (): void {
-    if (this.platformAnimation && this.platformAnimation.isPlaying()) {
+    if (this.platformAnimation?.isPlaying()) {
       this.platforms[this.platforms.length - 1].clear(true, true);
       this.platforms = this.platforms.slice(0, -1);
       this.restartNextPlatform();
     }
   }
 
-  private get scoreMultiplier (): 0 | 1 | 2 {
-    return this.playerScore < 15 ? 0 : this.playerScore < 30 ? 1 : 2;
+  private get scoreMultiplier (): number {
+    return Math.min(this.playerScore, 30) / 15 >> 0;
   }
 };
