@@ -186,15 +186,13 @@ export default class
     this.prompt?.prompt();
 
     this.prompt?.userChoice.then(choice => {
-      alert('onDownload: ' + this.android);
-
       if (choice.outcome === 'accepted') {
         alert('onDownload userChoice: ' + choice.outcome);
         this.downloadButton?.classList.add('hidden');
-        delete this.installPrompt;
+        // delete this.installPrompt;
       }
 
-      delete this.prompt;
+      // delete this.prompt;
     });
     // }
   }
