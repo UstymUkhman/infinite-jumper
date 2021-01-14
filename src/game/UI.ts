@@ -2,9 +2,10 @@ export default class
 {
   private multiplyScore = document.getElementById('scoreMultiplier')!;
   private currentScore = document.getElementById('currentScore')!;
-
   private downloadButton = document.getElementById('download');
+
   private newScore = document.getElementById('newBestScore')!;
+  private menuOptions = document.querySelectorAll('.option')!;
   private bestScore = document.getElementById('bestScore')!;
 
   private pauseScreen = document.getElementById('pause')!;
@@ -44,6 +45,8 @@ export default class
   private pause = false;
 
   public constructor () {
+    // this.createMenuOptions();
+
     this.start = this.onStart.bind(this);
     this.update = this.onUpdate.bind(this);
     this.restart = this.onRestart.bind(this);
@@ -65,6 +68,19 @@ export default class
     window.addEventListener('beforeinstallprompt', this.installPrompt);
     // }
   }
+
+  // private createMenuOptions (): void {
+  //   this.menuOptions.forEach(option =>
+  //     this.addOptionEvent(
+  //       option.classList[1],
+  //       option.lastElementChild as HTMLSpanElement
+  //     )
+  //   );
+  // }
+
+  // private addOptionEvent (option: string, element: HTMLSpanElement): void {
+  //   element.addEventListener();
+  // }
 
   public playIntro (callback: () => void): void {
     this.intro.addEventListener('click', this.start);
@@ -129,7 +145,7 @@ export default class
   }
 
   private onInstallPrompt (event: PromptEvent): void {
-    alert('onInstallPrompt: ' + this.android);
+    // alert('onInstallPrompt: ' + this.android);
     this.prompt = event;
   }
 
@@ -167,12 +183,13 @@ export default class
     // if (this.android) {
     //   window.open('https://play.google.com/store');
     // } else {
-    alert('onDownload: ' + this.android);
     this.prompt?.prompt();
 
     this.prompt?.userChoice.then(choice => {
-      alert('onDownload userChoice: ' + choice.outcome);
+      alert('onDownload: ' + this.android);
+
       if (choice.outcome === 'accepted') {
+        alert('onDownload userChoice: ' + choice.outcome);
         this.downloadButton?.classList.add('hidden');
         delete this.installPrompt;
       }
