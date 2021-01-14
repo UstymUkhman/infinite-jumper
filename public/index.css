@@ -214,27 +214,27 @@ h1, h2, h3, h4, h5, h6, p, span {
   left: 10px;
 }
 
-#ui #menu #line-1 {
+#ui #menu .line:first-child {
   top: 22px;
 }
 
-#ui #menu #line-2 {
+#ui #menu .line:last-child {
   bottom: 22px;
 }
 
-#ui #menu.open #line-1 {
+#ui #menu.open .line:first-child {
   animation: menuFirstLine 0.5s forwards;
 }
 
-#ui #menu.open #line-2 {
+#ui #menu.open .line:last-child {
   animation: menuLastLine 0.5s forwards;
 }
 
-#ui #menu.close #line-1 {
+#ui #menu.close .line:first-child {
   animation: menuFirstLine 0.5s reverse;
 }
 
-#ui #menu.close #line-2 {
+#ui #menu.close .line:last-child {
   animation: menuLastLine 0.5s reverse;
 }
 
@@ -532,11 +532,11 @@ h1, h2, h3, h4, h5, h6, p, span {
     left: 5px;
   }
 
-  #ui #menu #line-1 {
+  #ui #menu .line:first-child {
     top: 10px;
   }
 
-  #ui #menu #line-2 {
+  #ui #menu .line:last-child {
     bottom: 10px;
   }
 

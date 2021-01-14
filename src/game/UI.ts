@@ -187,7 +187,7 @@ export default class
 
     this.prompt?.userChoice.then(choice => {
       if (choice.outcome === 'accepted') {
-        alert('onDownload userChoice: ' + choice.outcome);
+        // alert('onDownload userChoice: ' + choice.outcome);
         this.downloadButton?.classList.add('hidden');
         // delete this.installPrompt;
       }
