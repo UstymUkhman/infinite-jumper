@@ -202,34 +202,40 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 #ui #menu .line {
-  transition: transform 0.5s var(--easeInOutQuad);
-  transform: translateY(0%) rotate(0deg);
-
+  backface-visibility: hidden;
   background-color: #fff;
   transform-origin: center;
 
   position: absolute;
   display: block;
 
-  height: 2px;
-  width: 70%;
-  left: 15%;
+  height: 5px;
+  width: 44px;
+  left: 10px;
 }
 
 #ui #menu .line:first-child {
-  top: 33%;
+  top: 22px;
 }
 
 #ui #menu .line:last-child {
-  bottom: 33%;
+  bottom: 22px;
 }
 
 #ui #menu.open .line:first-child {
-  transform: translateY(9px) rotate(-45deg);
+  animation: menuFirstLine 0.5s forwards;
 }
 
 #ui #menu.open .line:last-child {
-  transform: translateY(-9px) rotate(45deg);
+  animation: menuLastLine 0.5s forwards;
+}
+
+#ui #menu.close .line:first-child {
+  animation: menuFirstLine 0.5s reverse;
+}
+
+#ui #menu.close .line:last-child {
+  animation: menuLastLine 0.5s reverse;
 }
 
 #ui #newBestScore,
@@ -489,14 +495,6 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 @media only screen and (max-width: 480px) {
-  #ui #menu.open .line:first-child {
-    transform: translateY(4px) rotate(-45deg);
-  }
-
-  #ui #menu.open .line:last-child {
-    transform: translateY(-4px) rotate(45deg);
-  }
-
   #end .content .score span {
     line-height: 16px;
     font-size: 16px;
@@ -526,6 +524,20 @@ h1, h2, h3, h4, h5, h6, p, span {
 
     right: 1.1vh;
     top: 1.1vh;
+  }
+
+  #ui #menu .line {
+    height: 3px;
+    width: 22px;
+    left: 5px;
+  }
+
+  #ui #menu .line:first-child {
+    top: 10px;
+  }
+
+  #ui #menu .line:last-child {
+    bottom: 10px;
   }
 
   #pause .content #download {
@@ -614,5 +626,39 @@ h1, h2, h3, h4, h5, h6, p, span {
   100% {
     transform: translateY(0) scale(1) rotate(0deg);
     opacity: 0;
+  }
+}
+
+@keyframes menuFirstLine {
+  0% {
+    transform: translateY(0%) rotate(0deg);
+    transition-timing-function: var(--easeInQuad);
+  }
+
+  50% {
+    transform: translateY(150%) rotate(0deg);
+    transition-timing-function: var(--easeInQuad);
+  }
+
+  100% {
+    transform: translateY(150%) rotate(45deg);
+    transition-timing-function: var(--easeOutQuad);
+  }
+}
+
+@keyframes menuLastLine {
+  0% {
+    transform: translateY(0%) rotate(0deg);
+    transition-timing-function: var(--easeInQuad);
+  }
+
+  50% {
+    transform: translateY(-150%) rotate(0deg);
+    transition-timing-function: var(--easeInQuad);
+  }
+
+  100% {
+    transform: translateY(-150%) rotate(-45deg);
+    transition-timing-function: var(--easeOutQuad);
   }
 }

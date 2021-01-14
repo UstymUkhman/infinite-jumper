@@ -17,7 +17,7 @@ export default class
   private end = document.getElementById('end')!;
   private ui = document.getElementById('ui')!;
 
-  // private android = /android/i.test(navigator.userAgent);
+  private android = /android/i.test(navigator.userAgent);
 
   private installPrompt?: (event: PromptEvent) => void;
   private setTrack: (event: CustomEventInit) => void;
@@ -129,27 +129,37 @@ export default class
   }
 
   private onInstallPrompt (event: PromptEvent): void {
+    alert('onInstallPrompt: ' + this.android);
     this.prompt = event;
   }
 
   private onMenuToggle (event: MouseEvent): void {
     if (this.gameOver) return;
     this.pause = !this.pause;
+    this.toggleGameState();
 
     setTimeout(() =>
       document.dispatchEvent(new CustomEvent('game:pause', {
         detail: { autoplay: this.autoplay }
       })
     ), ~~!this.pause * 500);
+  }
 
-    if (!this.pause) {
-      this.pauseScreen.classList.remove('fadeIn');
-      this.menuButton.classList.remove('open');
+  private toggleGameState (): void {
+    if (this.pause) {
+      this.menuButton.classList.remove('close');
+      this.pauseScreen.classList.add('fadeIn');
+
+      void this.menuButton.offsetWidth;
+      this.menuButton.classList.add('open');
     }
 
     else {
-      this.pauseScreen.classList.add('fadeIn');
-      this.menuButton.classList.add('open');
+      this.pauseScreen.classList.remove('fadeIn');
+      this.menuButton.classList.remove('open');
+
+      void this.menuButton.offsetWidth;
+      this.menuButton.classList.add('close');
     }
   }
 
@@ -157,9 +167,11 @@ export default class
     // if (this.android) {
     //   window.open('https://play.google.com/store');
     // } else {
+    alert('onDownload: ' + this.android);
     this.prompt?.prompt();
 
     this.prompt?.userChoice.then(choice => {
+      alert('onDownload userChoice: ' + choice.outcome);
       if (choice.outcome === 'accepted') {
         this.downloadButton?.classList.add('hidden');
         delete this.installPrompt;
