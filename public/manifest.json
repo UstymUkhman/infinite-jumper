@@ -4,7 +4,7 @@
   "orientation": "portrait",
   "display": "fullscreen",
   "start_url": "./",
-  "scope": "/",
+  "scope": "./",
   "icons": [{
     "src": ".\/favicon\/android-icon-36x36.png",
     "purpose": "any maskable",

@@ -29,7 +29,7 @@ export default class
   private savedScore = this.savedBestScore;
   private restartEvent: CustomEvent<void>;
   private startEvent: CustomEvent<void>;
-  private prompt?: PromptEvent;
+  private promptEvent?: PromptEvent;
 
   private scoreMultiplier = 0;
   private lastMultiplier = 0;
@@ -145,8 +145,8 @@ export default class
   }
 
   private onInstallPrompt (event: PromptEvent): void {
-    // alert('onInstallPrompt: ' + this.android);
-    this.prompt = event;
+    event.preventDefault();
+    this.promptEvent = event;
   }
 
   private onMenuToggle (event: MouseEvent): void {
@@ -183,16 +183,15 @@ export default class
     // if (this.android) {
     //   window.open('https://play.google.com/store');
     // } else {
-    this.prompt?.prompt();
+    this.promptEvent?.prompt();
 
-    this.prompt?.userChoice.then(choice => {
+    this.promptEvent?.userChoice.then(choice => {
       if (choice.outcome === 'accepted') {
-        // alert('onDownload userChoice: ' + choice.outcome);
         this.downloadButton?.classList.add('hidden');
         // delete this.installPrompt;
       }
 
-      // delete this.prompt;
+      delete this.promptEvent;
     });
     // }
   }
