@@ -86,9 +86,9 @@ export default class extends Scene
   }
 
   private start (): void {
-    this.camera.follow(this.player, this.center.y - 182);
-    this.createNextPlatform();
     this.gamePaused = false;
+    this.createNextPlatform();
+    this.camera.follow(this.player, this.center.y - 182);
   }
 
   public update (): void {
@@ -105,8 +105,8 @@ export default class extends Scene
 
   private restart (): void {
     for (let p = this.platforms.length; p--;) {
-      const platform = this.platforms[p];
-      platform.clear(true, true);
+      this.platforms[p].clear(true, true);
+      this.platforms = this.platforms.slice(0, p);
     }
 
     this.platformAnimation?.stop();
@@ -166,7 +166,7 @@ export default class extends Scene
         const { autoplay } = event.detail;
 
         !this.autoplay && autoplay
-          ? this.restartNextPlatform()
+          ? this.resetNextPlatform()
           : this.platformAnimation?.resume();
 
         this.autoplay = autoplay;
@@ -184,7 +184,7 @@ export default class extends Scene
   }
 
   private createNextPlatform (): void {
-    const bricks = 3 - this.scoreMultiplier;
+    const bricks = 3 - this.getScoreMultiplier(false);
     const [ease, minDuration] = easing();
 
     const p = this.platforms.length;
@@ -221,13 +221,9 @@ export default class extends Scene
       onUpdate: (tween, brick) => this.onPlatformUpdate(tween, brick, ease, player),
 
       targets: this.platforms[p].getChildren(),
+      paused: this.gamePaused,
       duration, delay, ease
     });
-  }
-
-  private restartNextPlatform (): void {
-    this.platformAnimation?.stop();
-    !this.gameOver && this.createNextPlatform();
   }
 
   private nextPlatformPosition (tween: Tweens.Tween, ease: Easing): number {
@@ -272,18 +268,14 @@ export default class extends Scene
     this.camera.zoomIn(++this.score);
     this.platformAnimation?.stop();
 
-    if (!this.autoplay) {
-      this.playerScore = this.score;
+    !this.autoplay && document.dispatchEvent(
+      new CustomEvent('score:update', { detail: {
+        multiplier: this.getScoreMultiplier(true),
+        score: ++this.playerScore
+      }})
+    );
 
-      document.dispatchEvent(
-        new CustomEvent('score:update', { detail: {
-          multiplier: this.scoreMultiplier,
-          score: this.score
-        }})
-      );
-    }
-
-    !this.gamePaused && this.createNextPlatform();
+    this.createNextPlatform();
   }
 
   private onGameOver (): void {
@@ -387,15 +379,17 @@ export default class extends Scene
     }
   }
 
-  private resetNextPlatform (): void {
-    if (this.platformAnimation?.isPlaying()) {
-      this.platforms[this.platforms.length - 1].clear(true, true);
-      this.platforms = this.platforms.slice(0, -1);
-      this.restartNextPlatform();
-    }
+  private getScoreMultiplier (player: boolean): number {
+    return Math.min(player ? this.playerScore : this.score, 30) / 15 >> 0;
   }
 
-  private get scoreMultiplier (): number {
-    return Math.min(this.playerScore, 30) / 15 >> 0;
+  private resetNextPlatform (): void {
+    if (this.platformAnimation) {
+      this.platforms[this.platforms.length - 1]?.clear(true, true);
+      this.platforms = this.platforms.slice(0, -1);
+
+      this.platformAnimation.stop();
+      !this.gameOver && this.createNextPlatform();
+    }
   }
 };
