@@ -28,9 +28,11 @@ export default class
 
   private savedScore = this.savedBestScore;
   private restartEvent: CustomEvent<void>;
+  private optionEvent: CustomEvent<void>;
   private startEvent: CustomEvent<void>;
   private promptEvent?: PromptEvent;
 
+  private soundsEffects = true;
   private scoreMultiplier = 0;
   private lastMultiplier = 0;
 
@@ -56,6 +58,7 @@ export default class
     this.toggleMenu = this.onMenuToggle.bind(this);
 
     this.startEvent = new CustomEvent('game:start');
+    this.optionEvent = new CustomEvent('option:click');
     this.restartEvent = new CustomEvent('game:restart');
 
     document.addEventListener('new:song', this.setTrack);
@@ -63,10 +66,10 @@ export default class
     this.menuButton.addEventListener('click', this.toggleMenu);
     this.downloadButton?.addEventListener('click', this.download);
 
-    // if (!this.android) {
-    this.installPrompt = this.onInstallPrompt.bind(this);
-    window.addEventListener('beforeinstallprompt', this.installPrompt);
-    // }
+    if (!this.android) {
+      this.installPrompt = this.onInstallPrompt.bind(this);
+      window.addEventListener('beforeinstallprompt', this.installPrompt);
+    }
   }
 
   private createMenuOptions (): void {
@@ -82,6 +85,9 @@ export default class
     element.addEventListener('click', () => {
       const enabled = element.textContent === 'On';
       element.textContent = enabled ? 'Off' : 'On';
+
+      if (option === 'sounds') this.soundsEffects = !enabled;
+      this.soundsEffects && document.dispatchEvent(this.optionEvent);
 
       switch (option) {
         case 'music':
@@ -204,20 +210,20 @@ export default class
   }
 
   private onDownload (event: MouseEvent): void {
-    // if (this.android) {
-    //   window.open('https://play.google.com/store');
-    // } else {
-    this.promptEvent?.prompt();
+    if (this.android) {
+      window.open('https://play.google.com/');
+    } else {
+      this.promptEvent?.prompt();
 
-    this.promptEvent?.userChoice.then(choice => {
-      if (choice.outcome === 'accepted') {
-        this.downloadButton?.classList.add('hidden');
-        delete this.installPrompt;
-      }
+      this.promptEvent?.userChoice.then(choice => {
+        if (choice.outcome === 'accepted') {
+          this.downloadButton?.classList.add('hidden');
+          delete this.installPrompt;
+        }
 
-      delete this.promptEvent;
-    });
-    // }
+        delete this.promptEvent;
+      });
+    }
   }
 
   private onRestart (): void {

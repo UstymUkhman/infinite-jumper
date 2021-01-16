@@ -313,14 +313,12 @@ h1, h2, h3, h4, h5, h6, p, span {
 
 #pause .content #download {
   transition: background-color 0.25s, opacity 0.5s 1.25s;
-
-  border-bottom: 2px solid #000000;
-  border-right: 2px solid #000000;
-  border-left: 2px solid #C74B0C;
-  border-top: 2px solid #C74B0C;
-
   font-family: 'Press Start 2P';
   background-color: #FB9737;
+
+  border: 4px solid #000000;
+  border-top-color: #C74B0C;
+  border-left-color: #C74B0C;
 
   letter-spacing: 0.2vw;
   position: relative;
@@ -348,6 +346,11 @@ h1, h2, h3, h4, h5, h6, p, span {
 
 #pause .content #download:active {
   background-color: #C74B0C;
+}
+
+#pause .content #download.hidden {
+  transition-delay: 0s;
+  opacity: 0;
 }
 
 #pause .song {
@@ -381,8 +384,8 @@ h1, h2, h3, h4, h5, h6, p, span {
 }
 
 #pause.fadeIn .song,
-#pause.fadeIn .content #download,
-#pause.fadeIn .content .options .option {
+#pause.fadeIn .content .options .option,
+#pause.fadeIn .content #download:not(.hidden) {
   opacity: 1;
 }
 
@@ -545,7 +548,9 @@ h1, h2, h3, h4, h5, h6, p, span {
   }
 
   #pause .content #download {
+    border-width: 2px;
     padding-top: 0px;
+
     line-height: 9vw;
     font-size: 4vw;
   }

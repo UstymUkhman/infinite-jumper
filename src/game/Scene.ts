@@ -153,7 +153,9 @@ export default class extends Scene
   private createEventListeners (): void {
     this.scale.on('resize', this.resize, this);
     document.addEventListener('game:restart', this.restart.bind(this));
+
     this.input.on('pointerdown', () => !this.autoplay && this.player.jump());
+    document.addEventListener('option:click', () => this.landing.play({ volume: 0.1 }));
 
     document.addEventListener('game:pause', (event: CustomEventInit) => {
       this.gamePaused = !this.gamePaused;
@@ -163,13 +165,12 @@ export default class extends Scene
       }
 
       else {
-        const { autoplay } = event.detail;
+        const played = !this.autoplay;
+        this.autoplay = event.detail.autoplay;
 
-        !this.autoplay && autoplay
+        this.autoplay && played
           ? this.resetNextPlatform()
           : this.platformAnimation?.resume();
-
-        this.autoplay = autoplay;
       }
     });
 
@@ -226,6 +227,14 @@ export default class extends Scene
     });
   }
 
+  private onPlatformUpdate (tween: Tweens.Tween, brick: Physics.Arcade.Sprite, ease: Easing, player: number): void {
+    brick.refreshBody();
+    if (!this.autoplay) return;
+
+    const platform = this.nextPlatformPosition(tween, ease);
+    player - platform <= 64 && this.player.jump();
+  }
+
   private nextPlatformPosition (tween: Tweens.Tween, ease: Easing): number {
     const offset = ~~!this.leftPlatform * -64 + 32;
     const frame = tween.elapsed + this.player.jumpTiming;
@@ -234,14 +243,6 @@ export default class extends Scene
     const bricks = ~~this.leftPlatform * (tween.totalTargets - 1);
 
     return (tween.data[bricks].end || 0 + offset) * ease(progress);
-  }
-
-  private onPlatformUpdate (tween: Tweens.Tween, brick: Physics.Arcade.Sprite, ease: Easing, player: number): void {
-    brick.refreshBody();
-    if (!this.autoplay) return;
-
-    const platform = this.nextPlatformPosition(tween, ease);
-    player - platform <= 64 && this.player.jump();
   }
 
   private onPlatformCollision (player: GameObjects.GameObject, platform: GameObjects.GameObject): void {
