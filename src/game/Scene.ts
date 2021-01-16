@@ -23,6 +23,7 @@ export default class extends Scene
   private playerRotation?: Tweens.Tween;
   private landing!: Sound.BaseSound;
 
+  private soundsEffects = true;
   private gamePaused = true;
   private gameOver = false;
   private autoplay = false;
@@ -172,6 +173,10 @@ export default class extends Scene
       }
     });
 
+    document.addEventListener('sounds:toggle', (event: CustomEventInit) => {
+      this.soundsEffects = event.detail.enable;
+    });
+
     document.addEventListener('game:start', () => {
       this.music.start();
       this.start();
@@ -263,9 +268,9 @@ export default class extends Scene
     this.leftPlatform = MathUtils.Between(0, 1) < 1;
     this.player.lookLeft = this.leftPlatform;
 
+    this.soundsEffects && this.landing.play();
     this.camera.zoomIn(++this.score);
     this.platformAnimation?.stop();
-    this.landing.play();
 
     if (!this.autoplay) {
       this.playerScore = this.score;

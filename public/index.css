@@ -307,6 +307,10 @@ h1, h2, h3, h4, h5, h6, p, span {
   margin-bottom: 0;
 }
 
+#pause .content .options .option span:last-child {
+  cursor: pointer;
+}
+
 #pause .content #download {
   transition: background-color 0.25s, opacity 0.5s 1.25s;
 

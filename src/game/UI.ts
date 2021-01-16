@@ -45,7 +45,7 @@ export default class
   private pause = false;
 
   public constructor () {
-    // this.createMenuOptions();
+    this.createMenuOptions();
 
     this.start = this.onStart.bind(this);
     this.update = this.onUpdate.bind(this);
@@ -69,18 +69,42 @@ export default class
     // }
   }
 
-  // private createMenuOptions (): void {
-  //   this.menuOptions.forEach(option =>
-  //     this.addOptionEvent(
-  //       option.classList[1],
-  //       option.lastElementChild as HTMLSpanElement
-  //     )
-  //   );
-  // }
+  private createMenuOptions (): void {
+    this.menuOptions.forEach(option =>
+      this.addOptionEvent(
+        option.classList[1],
+        option.lastElementChild as HTMLSpanElement
+      )
+    );
+  }
 
-  // private addOptionEvent (option: string, element: HTMLSpanElement): void {
-  //   element.addEventListener();
-  // }
+  private addOptionEvent (option: string, element: HTMLSpanElement): void {
+    element.addEventListener('click', () => {
+      const enabled = element.textContent === 'On';
+      element.textContent = enabled ? 'Off' : 'On';
+
+      switch (option) {
+        case 'music':
+        case 'sounds':
+          this.toggleMenuOption(option, !enabled);
+        break;
+
+        case 'autoplay':
+          this.autoplay = !this.autoplay;
+        break;
+
+        default: return;
+      }
+    });
+  }
+
+  private toggleMenuOption (option: string, enable: boolean): void {
+    document.dispatchEvent(
+      new CustomEvent(`${option}:toggle`, {
+        detail: { enable }
+      })
+    );
+  }
 
   public playIntro (callback: () => void): void {
     this.intro.addEventListener('click', this.start);
@@ -188,7 +212,7 @@ export default class
     this.promptEvent?.userChoice.then(choice => {
       if (choice.outcome === 'accepted') {
         this.downloadButton?.classList.add('hidden');
-        // delete this.installPrompt;
+        delete this.installPrompt;
       }
 
       delete this.promptEvent;

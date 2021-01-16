@@ -9,6 +9,8 @@ export default class
   private music: SoundFade;
   private artist: Artist;
 
+  private fadeTimeout = 0;
+  private enable = true;
   private track = -1;
 
   public constructor (private scene: Scene, soundFade: unknown, artists: unknown) {
@@ -23,6 +25,17 @@ export default class
 
   public start (): void {
     this.playNextTrack();
+
+    document.addEventListener('music:toggle', (event: CustomEventInit) => {
+      this.enable = event.detail.enable;
+      clearTimeout(this.fadeTimeout);
+
+      this.tracks.forEach(track =>
+        this.enable ? track.resume() : track.pause()
+      );
+
+      this.enable && --this.track && this.playNextTrack();
+    });
   }
 
   private playNextTrack (): void {
@@ -40,7 +53,7 @@ export default class
       }})
     );
 
-    setTimeout(() => {
+    this.fadeTimeout = setTimeout(() => {
       this.music.fadeOut(this.scene, track, 500, false);
       this.playNextTrack();
     }, fade);

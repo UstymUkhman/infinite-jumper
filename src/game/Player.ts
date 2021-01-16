@@ -9,6 +9,7 @@ export default class extends Physics.Arcade.Sprite
   private dieSound: Sound.BaseSound;
   private position: Math.Vector2;
 
+  private soundsEffects = true;
   private offsetTime?: number;
   private size: Math.Vector2;
 
@@ -23,6 +24,10 @@ export default class extends Physics.Arcade.Sprite
 
     this.position = new Math.Vector2(this.x, this.y);
     this.size = new Math.Vector2(scene.scale.width, scene.scale.height);
+
+    document.addEventListener('sounds:toggle', (event: CustomEventInit) => {
+      this.soundsEffects = event.detail.enable;
+    });
 
     scene.anims.create({
       frames: scene.anims.generateFrameNumbers('mario', {
@@ -63,16 +68,17 @@ export default class extends Physics.Arcade.Sprite
 
   public jump (): void {
     if (this.alive && this.body.touching.down) {
+      this.soundsEffects && this.jumpSound.play();
       this.setVelocityY(-500.0);
-      this.anims.play('jump');
 
-      this.jumpSound.play();
+      this.anims.play('jump');
       this.jumping = true;
     }
   }
 
   public die (fromLeft: boolean) {
     const direction = fromLeft ? 1 : -1;
+    this.soundsEffects && this.dieSound.play();
 
     this.offsetTime = setTimeout(
       this.setOffset.bind(this, 0, -30), 250
@@ -82,7 +88,6 @@ export default class extends Physics.Arcade.Sprite
     this.setCollideWorldBounds(true);
 
     this.flipX = fromLeft;
-    this.dieSound.play();
     this.alive = false;
 
     return {
