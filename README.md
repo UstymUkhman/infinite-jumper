@@ -2,13 +2,13 @@
 
 *8 bit style infinite jumper game*
 
-[![Google Play Store](https://img.shields.io/badge/Google-Play%20Store-brightgreen)](https://play.google.com/store/apps/details?id=com.UstymUkhman.InfiniteJumper)
+[![Google Play Store](https://img.shields.io/badge/Google-Play%20Store-brightgreen)](https://play.google.com/store/apps/details?id=xyz.appmaker.ovqmwo)
 ![PWA version](https://img.shields.io/github/package-json/v/UstymUkhman/infinite-jumper?color=brightgreen&label=PWA)
 ![GitHub deployments](https://img.shields.io/github/deployments/UstymUkhman/infinite-jumper/github-pages)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/UstymUkhman/infinite-jumper?color=brightgreen)
 ![GitHub](https://img.shields.io/github/license/UstymUkhman/infinite-jumper)
 
-You can play and download it [here](https://ustymukhman.github.io/infinite-jumper/public) or install it from [Google Play Store](https://play.google.com/store/apps/details?id=com.UstymUkhman.InfiniteJumper).
+You can play and download it [here](https://ustymukhman.github.io/infinite-jumper/public) or install it from [Google Play Store](https://play.google.com/store/apps/details?id=xyz.appmaker.ovqmwo).
 
 ![](./public/assets/preview.gif)
 

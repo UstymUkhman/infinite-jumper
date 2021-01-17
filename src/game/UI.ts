@@ -211,7 +211,7 @@ export default class
 
   private onDownload (event: MouseEvent): void {
     if (this.android) {
-      window.open('https://play.google.com/store/apps/details?id=com.UstymUkhman.InfiniteJumper');
+      window.open('https://play.google.com/store/apps/details?id=xyz.appmaker.ovqmwo');
     } else {
       this.promptEvent?.prompt();
 

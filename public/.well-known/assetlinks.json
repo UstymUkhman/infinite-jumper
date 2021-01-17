@@ -3,8 +3,8 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.UstymUkhman.InfiniteJumper",
-      "sha256_cert_fingerprints": ["57:8E:4D:F8:5C:4F:8F:D4:FE:0A:67:DF:38:B4:C3:F1:6E:9E:3A:75:7A:BB:25:EA:95:5D:B7:2C:A0:9A:14:B1"]
+      "package_name": "xyz.appmaker.ovqmwo",
+      "sha256_cert_fingerprints": ["2A:32:25:AD:F7:6F:81:77:76:8F:19:36:FD:A0:AF:BD:C1:C7:E7:2C:B8:96:D2:92:BA:41:6C:A1:4D:02:A8:D4"]
     }
   }
 ]
