@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.UstymUkhman.InfiniteJumper",
+      "sha256_cert_fingerprints": ["57:8E:4D:F8:5C:4F:8F:D4:FE:0A:67:DF:38:B4:C3:F1:6E:9E:3A:75:7A:BB:25:EA:95:5D:B7:2C:A0:9A:14:B1"]
+    }
+  }
+]
