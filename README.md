@@ -1,4 +1,4 @@
-# [Infinite Jumper](https://ustymukhman.github.io/infinite-jumper/public) #
+# [Infinite Jumper](http://35.158.218.205/experiments/infinite-jumper/) #
 
 *8 bit style infinite jumper game*
 
@@ -8,7 +8,7 @@
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/UstymUkhman/infinite-jumper?color=brightgreen)
 ![GitHub](https://img.shields.io/github/license/UstymUkhman/infinite-jumper)
 
-You can play and download it [here](https://ustymukhman.github.io/infinite-jumper/public) or install it from [Google Play Store](https://play.google.com/store/apps/details?id=xyz.appmaker.ymcrxm).
+You can play and download it [here](http://35.158.218.205/experiments/infinite-jumper/) or install it from [Google Play Store](https://play.google.com/store/apps/details?id=xyz.appmaker.ymcrxm).
 
 ![](./public/assets/preview.gif)
 
