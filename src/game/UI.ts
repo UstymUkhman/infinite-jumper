@@ -18,9 +18,7 @@ export default class
   private end = document.getElementById('end')!;
   private ui = document.getElementById('ui')!;
 
-  private android = /android/i.test(navigator.userAgent);
-
-  private installPrompt?: (event: PromptEvent) => void;
+  private installPrompt: (event: PromptEvent) => void;
   private setTrack: (event: CustomEventInit) => void;
   private update: (event: CustomEventInit) => void;
   private toggleMenu: (event: MouseEvent) => void;
@@ -56,6 +54,7 @@ export default class
     this.download = this.onDownload.bind(this);
     this.setTrack = this.setNewTrack.bind(this);
     this.toggleMenu = this.onMenuToggle.bind(this);
+    this.installPrompt = this.onInstallPrompt.bind(this);
 
     this.startEvent = new CustomEvent('game:start');
     this.optionEvent = new CustomEvent('option:click');
@@ -65,11 +64,7 @@ export default class
     document.addEventListener('score:update', this.update);
     this.menuButton.addEventListener('click', this.toggleMenu);
     this.downloadButton?.addEventListener('click', this.download);
-
-    if (!this.android) {
-      this.installPrompt = this.onInstallPrompt.bind(this);
-      window.addEventListener('beforeinstallprompt', this.installPrompt);
-    }
+    window.addEventListener('beforeinstallprompt', this.installPrompt);
   }
 
   private createMenuOptions (): void {
@@ -210,20 +205,15 @@ export default class
   }
 
   private onDownload (event: MouseEvent): void {
-    if (this.android) {
-      window.open('https://play.google.com/store/apps/details?id=xyz.appmaker.ymcrxm');
-    } else {
-      this.promptEvent?.prompt();
+    this.promptEvent?.prompt();
 
-      this.promptEvent?.userChoice.then(choice => {
-        if (choice.outcome === 'accepted') {
-          this.downloadButton?.classList.add('hidden');
-          delete this.installPrompt;
-        }
+    this.promptEvent?.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') {
+        this.downloadButton?.classList.add('hidden');
+      }
 
-        delete this.promptEvent;
-      });
-    }
+      delete this.promptEvent;
+    });
   }
 
   private onRestart (): void {
