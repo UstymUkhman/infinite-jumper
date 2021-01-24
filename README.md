@@ -8,7 +8,12 @@
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/UstymUkhman/infinite-jumper?color=brightgreen)
 ![GitHub](https://img.shields.io/github/license/UstymUkhman/infinite-jumper)
 
-You can play and download it [here](https://ustymukhman.github.io/infinite-jumper/public/) or install an [APK](https://github.com/UstymUkhman/infinite-jumper/blob/main/public/Infinite%20Jumper.apk?raw=true).
+### How to play: ###
+
+  - [Live Demo](https://ustymukhman.github.io/infinite-jumper/public/)
+  - Downlaod a [PWA](https://ustymukhman.github.io/infinite-jumper/public/)
+  - Downlaod an [APK](https://github.com/UstymUkhman/infinite-jumper/blob/main/public/Infinite%20Jumper.apk?raw=true)
+  - Install it from [Aptoide](https://infinite-jumper.en.aptoide.com/app?store_name=ustym&app_id=55713742)
 
 ![](./public/assets/preview.gif)
 

@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.appmaker.soylly",
+      "sha256_cert_fingerprints": ["E0:71:D9:50:98:ED:1B:07:1D:67:78:7A:DD:E7:EC:72:C4:BA:D2:ED:62:BE:CC:B2:32:63:61:FA:FD:95:C8:E1"]
+    }
+  }
+]
